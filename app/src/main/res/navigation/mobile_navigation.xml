@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_map">
+
+    <fragment
+        android:id="@+id/nav_map"
+        android:name="com.example.tripper.FragmentMap"
+        android:label="@string/menu_map"
+        tools:layout="@layout/fragment_map" />
+
+    <fragment
+        android:id="@+id/nav_explore"
+        android:name="com.example.tripper.FragmentExplore"
+        android:label="@string/menu_explore"
+        tools:layout="@layout/fragment_explore" />
+
+    <fragment
+        android:id="@+id/nav_your_trips"
+        android:name="com.example.tripper.FragmentMap"
+        android:label="@string/menu_your_trips"
+        tools:layout="@layout/fragment_map" />
+
+    <fragment
+        android:id="@+id/nav_your_profile"
+        android:name="com.example.tripper.FragmentMap"
+        android:label="@string/menu_your_profile"
+        tools:layout="@layout/fragment_map" />
+
+    <fragment
+        android:id="@+id/nav_help"
+        android:name="com.example.tripper.FragmentMap"
+        android:label="@string/menu_help"
+        tools:layout="@layout/fragment_map" />
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.example.tripper.FragmentMap"
+        android:label="@string/menu_settings"
+        tools:layout="@layout/fragment_map" />
+</navigation>
