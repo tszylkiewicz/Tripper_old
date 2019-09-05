@@ -18,6 +18,7 @@
     <string name="properties_title">Properties</string>
     <string name="properties_days">Days (max 21)</string>
     <string name="properties_type">Mean of transport</string>
+    <string name="properties_max_distance">Max distance per day</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

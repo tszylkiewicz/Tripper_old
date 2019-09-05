@@ -67,4 +67,27 @@
             android:textColor="#000"
             android:spinnerMode="dropdown"/>
     </TableRow>
+
+    <TableRow android:layout_marginBottom="20dp">
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_column="0"
+            android:layout_marginLeft="10dp"
+            android:text="@string/properties_max_distance"
+            android:textColor="#fff"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/max_distance"
+            android:layout_height="wrap_content"
+            android:layout_column="1"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:inputType="number"
+            android:background="#fff"
+            android:hint="@string/properties_max_distance"
+            android:padding="5dp"
+            android:textColor="#000" />
+    </TableRow>
 </TableLayout>

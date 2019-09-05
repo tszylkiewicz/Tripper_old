@@ -15,6 +15,7 @@ public class PropertiesActivity extends Activity implements PropertiesActivityCo
     public PropertiesActivityContract.Presenter presenter;
     public EditText days;
     public Spinner type;
+    public EditText maxDistance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +39,8 @@ public class PropertiesActivity extends Activity implements PropertiesActivityCo
 
         days = findViewById(R.id.days);
         days.setFilters(new InputFilter[]{new InputFilterMinMax("1", "21")});
-        days.setText("1");
+        days.setText(Integer.toString(MapFragmentPresenter.days));
+        maxDistance = findViewById(R.id.max_distance);
         type = findViewById(R.id.type);
         String[] items = new String[]{"Walk", "Bike", "Car"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);

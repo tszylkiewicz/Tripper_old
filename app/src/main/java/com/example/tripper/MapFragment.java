@@ -7,8 +7,10 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import android.os.StrictMode;
@@ -32,6 +34,7 @@ import org.osmdroid.bonuspack.routing.RoadNode;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.CustomZoomButtonsController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
@@ -49,13 +52,13 @@ import java.util.concurrent.Executor;
 public class MapFragment extends Fragment implements MapFragmentContract.View {
 
     public MapFragmentPresenter presenter;
-    MapView map = null;
-    ArrayList<OverlayItem> items = null;
-    Context context = null;
-    FloatingActionButton properties = null;
-    FloatingActionButton createRoute = null;
-    ArrayList<GeoPoint> waypoints = null;
-    RoadManager roadManager = null;
+    MapView map;
+    Context context;
+    IMapController mapController;
+
+    FloatingActionButton properties;
+    FloatingActionButton createRoute;
+    FloatingActionButton clearMap;
 
     public MapFragment() {
         // Required empty public constructor
@@ -64,27 +67,15 @@ public class MapFragment extends Fragment implements MapFragmentContract.View {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
+
         View view = inflater.inflate(R.layout.fragment_map, container, false);
         map = view.findViewById(R.id.mapview);
-        map.setTileSource(TileSourceFactory.MAPNIK);
-        map.setBuiltInZoomControls(true);
-        map.setMultiTouchControls(true);
-        context = this.getContext();
-        GeoPoint startPoint = new GeoPoint(51.13, 19.63);
-        IMapController mapController = map.getController();
-        mapController.setZoom(9);
-        mapController.setCenter(startPoint);
+context = this.getContext();
+        presenter = new MapFragmentPresenter(this, this.context);
 
-        final Marker startMarker = new Marker(map);
-        startMarker.setPosition(startPoint);
-        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        map.getOverlays().add(startMarker);
-
-        roadManager = new OSRMRoadManager(this.getContext());
-
-        waypoints = new ArrayList<GeoPoint>();
         /*
         waypoints.add(startPoint);
         GeoPoint endPoint = new GeoPoint(48.4, -1.9);
@@ -116,11 +107,7 @@ public class MapFragment extends Fragment implements MapFragmentContract.View {
 
             @Override
             public boolean longPressHelper(GeoPoint p) {
-                Marker marker = new Marker(map);
-                marker.setPosition(p);
-                marker.setTitle("Element");
-                map.getOverlays().add(marker);
-                waypoints.add(p);
+                presenter.addMarker(p, map);
                 return false;
             }
         };
@@ -132,23 +119,10 @@ public class MapFragment extends Fragment implements MapFragmentContract.View {
 
         createRoute = view.findViewById(R.id.create_route);
         createRoute.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View v) {
-                Road[] road = roadManager.getRoads(waypoints);
-                for (Road singleRoad : road
-                ) {
-                    if (singleRoad.mStatus != Road.STATUS_OK) {
-                        Log.d("Road Status", "" + singleRoad.mStatus);
-                    } else {
-                        Polyline roadOverlay = RoadManager.buildRoadOverlay(singleRoad);
-                        roadOverlay.setColor(Color.GREEN);
-                        roadOverlay.setWidth(5);
-                        map.getOverlays().add(roadOverlay);
-                    }
-                }
-                //Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
-                //map.getOverlays().add(roadOverlay);
-                map.invalidate();
+                presenter.calculateRoad();
             }
         });
 
@@ -161,7 +135,16 @@ public class MapFragment extends Fragment implements MapFragmentContract.View {
             }
         });
 
-        presenter = new MapFragmentPresenter(this);
+
+        clearMap = view.findViewById(R.id.clear_map);
+        clearMap.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                presenter.clearMap();
+            }
+        });
+
 
         return view;
     }
@@ -184,4 +167,43 @@ public class MapFragment extends Fragment implements MapFragmentContract.View {
         map.onPause();  //needed for compass, my location overlays, v6.0.0 and up
     }
 
+    @Override
+    public void removeAllMarkers(ArrayList<Marker> markers) {
+        map.getOverlays().removeAll(markers);
+        Toast.makeText(context, "Map has been cleared", Toast.LENGTH_LONG).show();
+        Log.d("overlays left", "" + map.getOverlays().size());
+    }
+
+    @Override
+    public void removeAllRoads(ArrayList<Polyline> polylines) {
+        map.getOverlays().removeAll(polylines);
+    }
+
+    @Override
+    public void addMarker(Marker marker) {
+        map.getOverlays().add(marker);
+
+    }
+
+    @Override
+    public void removeMarker(Marker marker) {
+        map.getOverlays().remove(marker);
+        map.invalidate();
+        Log.d("overlays left", "" + map.getOverlays().size());
+    }
+
+    @Override
+    public void drawRoads(ArrayList<Polyline> roads) {
+        map.getOverlays().addAll(roads);
+    }
+
+    @Override
+    public void defaultSettings() {
+        map.setTileSource(TileSourceFactory.MAPNIK);
+        map.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.SHOW_AND_FADEOUT);
+        map.setMultiTouchControls(true);
+        mapController = map.getController();
+        mapController.setZoom(11.0d);
+        mapController.setCenter(new GeoPoint(51.13, 19.63));
+    }
 }
