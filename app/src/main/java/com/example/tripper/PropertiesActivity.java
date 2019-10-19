@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.NumberPicker;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 public class PropertiesActivity extends Activity implements PropertiesActivityContract.View {
 
@@ -16,6 +19,8 @@ public class PropertiesActivity extends Activity implements PropertiesActivityCo
     public EditText days;
     public Spinner type;
     public EditText maxDistance;
+
+    NumberPicker np;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +33,7 @@ public class PropertiesActivity extends Activity implements PropertiesActivityCo
         int width = dm.widthPixels;
         int height = dm.heightPixels;
 
-        getWindow().setLayout((int) (width * .7), (int) (height * .7));
+        getWindow().setLayout((int) (width * .8), (int) (height * .7));
 
         WindowManager.LayoutParams params = getWindow().getAttributes();
         params.gravity = Gravity.CENTER;
@@ -37,28 +42,37 @@ public class PropertiesActivity extends Activity implements PropertiesActivityCo
 
         getWindow().setAttributes(params);
 
-        days = findViewById(R.id.days);
-        days.setFilters(new InputFilter[]{new InputFilterMinMax("1", "21")});
-        days.setText(Integer.toString(MapFragmentPresenter.days));
-        maxDistance = findViewById(R.id.max_distance);
         type = findViewById(R.id.type);
-        String[] items = new String[]{"Walk", "Bike", "Car"};
+        String[] items = new String[]{"Car", "Bike", "Walk"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
         type.setAdapter(adapter);
+
+        np = findViewById(R.id.numberPicker);
+
+        np.setMinValue(1);
+        np.setMaxValue(30);
+
+        np.setOnValueChangedListener(onValueChangeListener);
 
         presenter = new PropertiesActivityPresenter(this);
     }
 
     @Override
     public void onStop() {
-        if (days.getText().toString() == "") {
-            MapFragmentPresenter.days = 1;
-        } else {
-            MapFragmentPresenter.days = Integer.parseInt(days.getText().toString());
-        }
+
+            MapFragmentPresenter.days = np.getValue();
+
 
         MapFragmentPresenter.type = type.getSelectedItemPosition();
         //Log.d("Properties", String.valueOf(type.getSelectedItemPosition()));
         super.onStop();
     }
+
+    NumberPicker.OnValueChangeListener onValueChangeListener =
+            new 	NumberPicker.OnValueChangeListener(){
+                @Override
+                public void onValueChange(NumberPicker numberPicker, int i, int i1) {
+                    Log.d("Properties", "selected number "+numberPicker.getValue());
+                }
+            };
 }

@@ -1,0 +1,6 @@
+<resources>
+    <item name="fab_create_route" type="id" />
+    <item name="fab_clear_map" type="id" />
+    <item name="fab_properties" type="id" />
+    <item name="fab_my_location" type="id" />
+</resources>

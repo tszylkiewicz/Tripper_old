@@ -12,30 +12,34 @@
         android:layout_height="match_parent"
         tilesource="Mapnik" >
     </org.osmdroid.views.MapView>
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/properties"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|start"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/ic_properties"
-        tools:ignore="VectorDrawableCompat" />
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/create_route"
+
+    <com.leinardi.android.speeddial.SpeedDialView
+        android:id="@+id/speedDial"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/ic_play"
-        tools:ignore="VectorDrawableCompat" />
+        app:sdMainFabClosedSrc="@drawable/ic_options"
+        app:sdMainFabClosedIconColor="@color/text"
+        app:sdMainFabOpenedSrc="@drawable/ic_close" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/clear_map"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/ic_remove"
-        tools:ignore="VectorDrawableCompat" />
+    <ImageButton
+        android:id="@+id/zoom_in"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:background="@drawable/round_btn"
+        android:src="@drawable/ic_add" />
+
+    <ImageButton
+        android:id="@+id/zoom_out"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="70dp"
+        android:layout_marginRight="15dp"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:background="@drawable/round_btn"
+        android:src="@drawable/ic_remove" />
 
 </FrameLayout>
