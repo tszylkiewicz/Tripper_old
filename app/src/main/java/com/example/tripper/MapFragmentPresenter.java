@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.Vector;
 
 public class MapFragmentPresenter implements MapFragmentContract.Presenter {
 
@@ -33,7 +34,7 @@ public class MapFragmentPresenter implements MapFragmentContract.Presenter {
 
     public RoadManager roadManager;
     public Road[] roads;
-
+    public MapView mapView;
     public MapFragmentContract.View view;
 
     public MapFragmentPresenter(MapFragmentContract.View view, Context context) {
@@ -69,13 +70,16 @@ public class MapFragmentPresenter implements MapFragmentContract.Presenter {
         Marker marker = new Marker(map);
         marker.setPosition(geoPoint);
         marker.setTitle("Element");
-        marker.setIcon(icon);
+        if (icon != null) {
+            marker.setIcon(icon);
+        }
         marker.setOnMarkerClickListener((marker1, mapView) -> {
             removeMarker(marker1);
             return false;
         });
         markers.add(marker);
         this.view.addMarker(marker);
+        this.mapView = map;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -108,7 +112,9 @@ public class MapFragmentPresenter implements MapFragmentContract.Presenter {
         this.view.drawRoads(roadsOnMap);*/
         this.view.removeAllRoads(roadsOnMap);
         roadsOnMap.clear();
-        kMeansAlgorithm();
+        //kMeansAlgorithm();
+
+        fuzzyCMeans();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -167,6 +173,77 @@ public class MapFragmentPresenter implements MapFragmentContract.Presenter {
                     this.view.drawRoads(roadsOnMap);
                 }
             }
+        }
+    }
+
+
+    public void fuzzyCMeans() {
+        int d = days;
+        double m = 2d;
+        Random rand = new Random();
+        Vector<Vector<Double>> membershipMatrix = new Vector<>();
+
+
+        for (int i = 0; i < markers.size(); i++) {
+            Vector<Double> r = new Vector<>();
+            double sum = 0;
+            for (int j = 0; j < d; j++) {
+                r.add(rand.nextDouble());
+                sum += r.get(j);
+            }
+            for (int j = 0; j < d; j++) {
+                r.set(j, r.get(j) / sum * 1d);
+            }
+            membershipMatrix.add(r);
+        }
+
+        for (int i = 0; i < markers.size(); i++) {
+            Vector<Double> r = membershipMatrix.get(i);
+            for (int j = 0; j < d; j++) {
+                System.out.print(r.get(j) + ", ");
+            }
+            System.out.println();
+        }
+
+        int temp = markers.size() / days;
+        ArrayList<Centroid> centroids = new ArrayList<>();
+        for (int i = 0; i < d; i++) {
+            centroids.add(new Centroid(markers.get(i * temp).getPosition()));
+        }
+
+        for (int test = 0; test < 100; test++) {
+            for (int j = 0; j < d; j++) {
+                double licznik1 = 0;
+                double licznik2 = 0;
+                double mianownik = 0;
+                for (int i = 0; i < markers.size(); i++) {
+                    licznik1 += Math.pow(membershipMatrix.get(i).get(j), m) * markers.get(i).getPosition().getLatitude();
+                    licznik2 += Math.pow(membershipMatrix.get(i).get(j), m) * markers.get(i).getPosition().getLongitude();
+                    mianownik += Math.pow(membershipMatrix.get(i).get(j), m);
+                }
+                centroids.get(j).position = new GeoPoint(licznik1/mianownik, licznik2/mianownik);
+            }
+            for (int i = 0; i < markers.size(); i++) {
+                for (int j = 0; j < d; j++) {
+                    double mian = 0;
+                    for (int k = 0; k < d; k++) {
+                        mian += Math.pow(membershipMatrix.get(i).get(j) / membershipMatrix.get(i).get(k), 2d / (m - 1d));
+                    }
+                    membershipMatrix.get(i).set(j, 1d / mian);
+                }
+            }
+        }
+
+        for (int i = 0; i < markers.size(); i++) {
+            Vector<Double> r = membershipMatrix.get(i);
+            for (int j = 0; j < d; j++) {
+                System.out.print(r.get(j) + ", ");
+            }
+            System.out.println();
+        }
+
+        for(int i=0; i<centroids.size();i++){
+         addMarker(centroids.get(i).position, this.mapView, null);
         }
     }
 }
