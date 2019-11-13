@@ -238,9 +238,12 @@ public class MapFragmentPresenter implements MapFragmentContract.Presenter {
                     double distance = markers.get(i).getPosition().distanceToAsDouble(centroids.get(j).position);
                     for (int k = 0; k < d; k++) {
                         //mian += Math.pow(membershipMatrix.get(i).get(j) / membershipMatrix.get(i).get(k), 2d / (m - 1d));
-                        mian += Math.pow(distance / markers.get(i).getPosition().distanceToAsDouble(centroids.get(k).position), 2);
+                        mian += distance / markers.get(i).getPosition().distanceToAsDouble(centroids.get(k).position);
+                        //mian += Math.pow(distance / markers.get(i).getPosition().distanceToAsDouble(centroids.get(k).position), 2/ (m - 1));
                     }
+                    mian = Math.pow(mian, 2);
                     mian = Math.pow(mian, 1 / (m - 1));
+                    //mian = Math.pow(mian, 1 / (m - 1));
                     membershipMatrix.get(i).set(j, 1 / mian);
                 }
             }
@@ -294,7 +297,7 @@ public class MapFragmentPresenter implements MapFragmentContract.Presenter {
             centroids.add(new Centroid(markers.get(i * temp).getPosition()));
         }
 
-        for (int test = 0; test < 100; test++) {
+        for (int test = 0; test < 1000; test++) {
             for (int j = 0; j < d; j++) {
                 double licznik1 = 0;
                 double licznik2 = 0;
@@ -322,9 +325,15 @@ public class MapFragmentPresenter implements MapFragmentContract.Presenter {
                     //mian = Math.pow(distance, 2)/nj;
                     //mian = Math.pow(distance / nj, 2);
 
+                    //mian = Math.pow(distance, 2);
+                    //mian = Math.pow(mian, 1 / (m - 1));
+                    //mian = mian / nj;
+
                     mian = Math.pow(distance, 2);
-                    mian = Math.pow(mian, 1 / (m - 1));
-                    mian = mian/nj;
+                    mian = mian / nj;
+
+                    mian = Math.pow(mian, 1 / m - 1) + 1;
+
                     membershipMatrix.get(i).set(j, 1 / mian);
                 }
             }
