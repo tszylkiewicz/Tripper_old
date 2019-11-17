@@ -16,6 +16,10 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -86,37 +90,11 @@ public class MapFragmentPresenter implements MapFragmentContract.Presenter {
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void calculateRoad() {
-        /*int equal = markers.size() / days;
-        ArrayList<GeoPoint> waypoints = new ArrayList<>();
-        this.view.removeAllRoads(roadsOnMap);
-        roadsOnMap.clear();
-        for (int i = 0; i < days; i++) {
-            waypoints.clear();
-            for (int j = i * equal; j < (i + 1) * equal; j++) {
-                waypoints.add(markers.get(j).getPosition());
-            }
-            roads = roadManager.getRoads(waypoints);
-
-            for (Road singleRoad : roads
-            ) {
-                if (singleRoad.mStatus != Road.STATUS_OK) {
-                    Log.d("Road Status", "" + singleRoad.mStatus);
-                } else {
-                    Polyline roadOverlay = RoadManager.buildRoadOverlay(singleRoad);
-                    roadOverlay.setColor(Color.GREEN);
-                    roadOverlay.setWidth(7);
-                    roadsOnMap.add(roadOverlay);
-                }
-            }
-        }
-
-        this.view.drawRoads(roadsOnMap);*/
         this.view.removeAllRoads(roadsOnMap);
         roadsOnMap.clear();
         //kMeansAlgorithm();
 
-        //fuzzyCMeans();
-        possiblisticCMeans();
+        fuzzyCMeans();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -131,7 +109,7 @@ public class MapFragmentPresenter implements MapFragmentContract.Presenter {
         }
         Random rnd = new Random();
 
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 10000; i++) {
             for (Marker marker : markers
             ) {
                 GeoPoint markerPos = marker.getPosition();
@@ -180,176 +158,61 @@ public class MapFragmentPresenter implements MapFragmentContract.Presenter {
 
 
     public void fuzzyCMeans() {
-        int d = days;
-        int m = 2;
-        Random rand = new Random();
-        Vector<Vector<Double>> membershipMatrix = new Vector<>();
-        DecimalFormat df2 = new DecimalFormat("#.##");
+        CMeans fuzzyCMeans = new FuzzyCMeans(days, 0.0001, 2, markers);
+        //CMeans fuzzyCMeans = new PossibilisticCMeans(days, 0.00001, 2, markers);
 
-        for (int i = 0; i < markers.size(); i++) {
-            Vector<Double> r = new Vector<>();
-            double sum = 0;
-            for (int j = 0; j < d; j++) {
-                r.add(rand.nextDouble());
-                sum += r.get(j);
-            }
-            for (int j = 0; j < d; j++) {
-                r.set(j, r.get(j) / sum * 1d);
-            }
-            membershipMatrix.add(r);
-        }
-
-        /*System.out.println("---Initial Markers---");
-        for (int i = 0; i < markers.size(); i++) {
-            System.out.println(markers.get(i).getPosition());
-        }*/
-        System.out.println("---Initial Matrix---");
-        for (int i = 0; i < markers.size(); i++) {
-            Vector<Double> r = membershipMatrix.get(i);
-            for (int j = 0; j < d; j++) {
-                System.out.print(df2.format(r.get(j)) + ", ");
-            }
-            System.out.println();
-        }
-
-        int temp = markers.size() / days;
-        ArrayList<Centroid> centroids = new ArrayList<>();
-        for (int i = 0; i < d; i++) {
-            centroids.add(new Centroid(markers.get(i * temp).getPosition()));
-        }
-
-        for (int test = 0; test < 1000; test++) {
-            for (int j = 0; j < d; j++) {
-                double licznik1 = 0;
-                double licznik2 = 0;
-                double mianownik = 0;
-                for (int i = 0; i < markers.size(); i++) {
-                    licznik1 += Math.pow(membershipMatrix.get(i).get(j), m) * markers.get(i).getPosition().getLatitude();
-                    licznik2 += Math.pow(membershipMatrix.get(i).get(j), m) * markers.get(i).getPosition().getLongitude();
-                    mianownik += Math.pow(membershipMatrix.get(i).get(j), m);
-                }
-                centroids.get(j).position = new GeoPoint(licznik1 / mianownik, licznik2 / mianownik);
-                //System.out.println(centroids.get(j).position);
-            }
-
-            for (int i = 0; i < markers.size(); i++) {
-                for (int j = 0; j < d; j++) {
-                    double mian = 0;
-                    double distance = markers.get(i).getPosition().distanceToAsDouble(centroids.get(j).position);
-                    for (int k = 0; k < d; k++) {
-                        //mian += Math.pow(membershipMatrix.get(i).get(j) / membershipMatrix.get(i).get(k), 2d / (m - 1d));
-                        mian += distance / markers.get(i).getPosition().distanceToAsDouble(centroids.get(k).position);
-                        //mian += Math.pow(distance / markers.get(i).getPosition().distanceToAsDouble(centroids.get(k).position), 2/ (m - 1));
-                    }
-                    mian = Math.pow(mian, 2);
-                    mian = Math.pow(mian, 1 / (m - 1));
-                    //mian = Math.pow(mian, 1 / (m - 1));
-                    membershipMatrix.get(i).set(j, 1 / mian);
-                }
-            }
-        }
-
-        System.out.println("---Last---");
-        for (int i = 0; i < markers.size(); i++) {
-            Vector<Double> r = membershipMatrix.get(i);
-            for (int j = 0; j < d; j++) {
-                System.out.print(r.get(j) + ", ");
-            }
-            System.out.println();
-        }
+        ArrayList<Centroid> centroids = fuzzyCMeans.calculate();
+        Random rnd = new Random();
 
         for (int i = 0; i < centroids.size(); i++) {
             addMarker(centroids.get(i).position, this.mapView, null);
+        }
+
+        fuzzyCMeans.generateClusters();
+        for (Centroid centroid : centroids
+        ) {
+            ArrayList<GeoPoint> wps = new ArrayList<>();
+            for (Marker marker : RNN(centroid.markers)
+            ) {
+                wps.add(marker.getPosition());
+            }
+            roads = roadManager.getRoads(wps);
+
+            for (Road singleRoad : roads
+            ) {
+                if (singleRoad.mStatus != Road.STATUS_OK) {
+                    Log.d("Road Status", "" + singleRoad.mStatus);
+                } else {
+                    Polyline roadOverlay = RoadManager.buildRoadOverlay(singleRoad);
+                    roadOverlay.setColor(Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)));
+                    roadOverlay.setWidth(8);
+                    roadsOnMap.add(roadOverlay);
+                }
+            }
+            this.view.drawRoads(roadsOnMap);
         }
     }
 
-    public void possiblisticCMeans() {
-        int d = days;
-        int m = 2;
-        Random rand = new Random();
-        Vector<Vector<Double>> membershipMatrix = new Vector<>();
-        DecimalFormat df2 = new DecimalFormat("#.##");
-
-        for (int i = 0; i < markers.size(); i++) {
-            Vector<Double> r = new Vector<>();
-            for (int j = 0; j < d; j++) {
-                r.add(rand.nextDouble());
-            }
-            membershipMatrix.add(r);
-        }
-
-        /*System.out.println("---Initial Markers---");
-        for (int i = 0; i < markers.size(); i++) {
-            System.out.println(markers.get(i).getPosition());
-        }*/
-        System.out.println("---Initial Matrix---");
-        for (int i = 0; i < markers.size(); i++) {
-            Vector<Double> r = membershipMatrix.get(i);
-            for (int j = 0; j < d; j++) {
-                System.out.print(df2.format(r.get(j)) + ", ");
-            }
-            System.out.println();
-        }
-
-        int temp = markers.size() / days;
-        ArrayList<Centroid> centroids = new ArrayList<>();
-        for (int i = 0; i < d; i++) {
-            centroids.add(new Centroid(markers.get(i * temp).getPosition()));
-        }
-
-        for (int test = 0; test < 1000; test++) {
-            for (int j = 0; j < d; j++) {
-                double licznik1 = 0;
-                double licznik2 = 0;
-                double mianownik = 0;
-                for (int i = 0; i < markers.size(); i++) {
-                    licznik1 += Math.pow(membershipMatrix.get(i).get(j), m) * markers.get(i).getPosition().getLatitude();
-                    licznik2 += Math.pow(membershipMatrix.get(i).get(j), m) * markers.get(i).getPosition().getLongitude();
-                    mianownik += Math.pow(membershipMatrix.get(i).get(j), m);
-                }
-                centroids.get(j).position = new GeoPoint(licznik1 / mianownik, licznik2 / mianownik);
-                System.out.println(centroids.get(j).position);
-            }
-
-            for (int i = 0; i < markers.size(); i++) {
-                for (int j = 0; j < d; j++) {
-                    double njlicznik = 0;
-                    double njmian = 0;
-                    for (int k = 0; k < markers.size(); k++) {
-                        njlicznik += Math.pow(membershipMatrix.get(k).get(j), m) * Math.pow(centroids.get(j).position.distanceToAsDouble(markers.get(k).getPosition()), 2);
-                        njmian += Math.pow(membershipMatrix.get(k).get(j), m);
+    public ArrayList<Marker> RNN(ArrayList<Marker> group) {
+        int amount = group.size();
+        ArrayList<Marker> order = new ArrayList<>();
+        for (int i = 0; i < amount; i++) {
+            if (i != 0) {
+                int nearest = 0;
+                for (int j = 0; j < amount; j++) {
+                    if (group.get(nearest) != group.get(j)) {
+                        if (group.get(i).getPosition().distanceToAsDouble(group.get(j).getPosition()) < group.get(i).getPosition().distanceToAsDouble(group.get(nearest).getPosition())
+                                && !order.contains(group.get(j))) {
+                            nearest = j;
+                        }
                     }
-                    double nj = njlicznik / njmian;
-                    double mian;
-                    double distance = markers.get(i).getPosition().distanceToAsDouble(centroids.get(j).position);
-                    //mian = Math.pow(distance, 2)/nj;
-                    //mian = Math.pow(distance / nj, 2);
-
-                    //mian = Math.pow(distance, 2);
-                    //mian = Math.pow(mian, 1 / (m - 1));
-                    //mian = mian / nj;
-
-                    mian = Math.pow(distance, 2);
-                    mian = mian / nj;
-
-                    mian = Math.pow(mian, 1 / m - 1) + 1;
-
-                    membershipMatrix.get(i).set(j, 1 / mian);
                 }
+                order.add(group.get(nearest));
+            } else {
+                order.add(group.get(i));
             }
         }
-
-        System.out.println("---Last---");
-        for (int i = 0; i < markers.size(); i++) {
-            Vector<Double> r = membershipMatrix.get(i);
-            for (int j = 0; j < d; j++) {
-                System.out.print(r.get(j) + ", ");
-            }
-            System.out.println();
-        }
-
-        for (int i = 0; i < centroids.size(); i++) {
-            addMarker(centroids.get(i).position, this.mapView, null);
-        }
+        return order;
     }
 }
+
