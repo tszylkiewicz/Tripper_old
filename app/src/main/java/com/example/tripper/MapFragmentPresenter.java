@@ -22,6 +22,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -191,27 +194,73 @@ public class MapFragmentPresenter implements MapFragmentContract.Presenter {
             }
             this.view.drawRoads(roadsOnMap);
         }
+
+        //TEST SET
+        /*ArrayList<Marker> testSet = new ArrayList<>();
+
+        Marker marker1 = new Marker(mapView);
+        marker1.setPosition(new GeoPoint(4d, 4d));
+        testSet.add(marker1);
+
+        Marker marker2 = new Marker(mapView);
+        marker2.setPosition(new GeoPoint(5d, 5d));
+        testSet.add(marker2);
+
+        Marker marker3 = new Marker(mapView);
+        marker3.setPosition(new GeoPoint(2d, 2d));
+        testSet.add(marker3);
+
+        Marker marker4 = new Marker(mapView);
+        marker4.setPosition(new GeoPoint(1d, 1d));
+        testSet.add(marker4);
+
+        Marker marker5 = new Marker(mapView);
+        marker5.setPosition(new GeoPoint(3d, 3d));
+        testSet.add(marker5);
+
+        RNN(testSet);*/
     }
 
     public ArrayList<Marker> RNN(ArrayList<Marker> group) {
         int amount = group.size();
+        System.out.println("Amount: " + amount);
         ArrayList<Marker> order = new ArrayList<>();
-        for (int i = 0; i < amount; i++) {
-            if (i != 0) {
-                int nearest = 0;
-                for (int j = 0; j < amount; j++) {
-                    if (group.get(nearest) != group.get(j)) {
-                        if (group.get(i).getPosition().distanceToAsDouble(group.get(j).getPosition()) < group.get(i).getPosition().distanceToAsDouble(group.get(nearest).getPosition())
-                                && !order.contains(group.get(j))) {
-                            nearest = j;
+        ArrayList<Marker> finalOrder = new ArrayList<>();
+        double currentDistance;
+        double prevDistance = 0;
+
+        for (int j = 0; j < amount; j++) {
+
+            order.clear();
+            order.add(group.get(j));
+            currentDistance = 0;
+
+            for (int i = 1; i < amount; i++) {
+                int a = -1;
+                for (Marker marker : group
+                ) {
+                    if (!order.contains(marker)) {
+                        if (a == -1) {
+                            a = group.indexOf(marker);
+                        } else if (marker.getPosition().distanceToAsDouble(order.get(i - 1).getPosition()) < group.get(a).getPosition().distanceToAsDouble(order.get(i - 1).getPosition())) {
+                            a = group.indexOf(marker);
                         }
                     }
                 }
-                order.add(group.get(nearest));
-            } else {
-                order.add(group.get(i));
+                order.add(group.get(a));
+                currentDistance += order.get(i).getPosition().distanceToAsDouble(order.get(i - 1).getPosition());
+            }
+
+            if (currentDistance < prevDistance || finalOrder.isEmpty()) {
+                finalOrder = (ArrayList<Marker>) order.clone();
+                prevDistance = currentDistance;
             }
         }
+
+        for (Marker marker : finalOrder) {
+            System.out.println(marker.getPosition());
+        }
+        System.out.println("Total distance: " + prevDistance);
         return order;
     }
 }

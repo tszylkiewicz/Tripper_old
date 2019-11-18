@@ -92,7 +92,6 @@ public class MapFragment extends Fragment implements MapFragmentContract.View, M
         mLocationOverlay.enableFollowLocation();
 
 
-
         SpeedDialView speedDialView = view.findViewById(R.id.speedDial);
         speedDialView.addActionItem(
                 new SpeedDialActionItem.Builder(R.id.fab_properties, R.drawable.ic_properties)
@@ -250,12 +249,12 @@ public class MapFragment extends Fragment implements MapFragmentContract.View, M
     }
 
     @Override
-    public boolean singleTapConfirmedHelper(GeoPoint p) {
+    public boolean longPressHelper(GeoPoint p) {
         return false;
     }
 
     @Override
-    public boolean longPressHelper(GeoPoint p) {
+    public boolean singleTapConfirmedHelper(GeoPoint p) {
         presenter.addMarker(p, map, getResources().getDrawable(R.drawable.ic_marker));
         return false;
     }
