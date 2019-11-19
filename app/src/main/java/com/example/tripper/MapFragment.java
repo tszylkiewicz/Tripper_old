@@ -2,6 +2,7 @@ package com.example.tripper;
 
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -27,6 +28,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.google.android.gms.common.internal.Constants;
 import com.leinardi.android.speeddial.SpeedDialActionItem;
 import com.leinardi.android.speeddial.SpeedDialView;
 
@@ -50,12 +52,22 @@ import java.lang.ref.ReferenceQueue;
 import java.util.ArrayList;
 
 
-public class MapFragment extends Fragment implements MapFragmentContract.View, MapEventsReceiver {
+public class MapFragment extends Fragment implements MapFragmentContract.View, MapEventsReceiver, LocationListener {
 
+    private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 0;
     private MapFragmentPresenter presenter;
     private MapView map;
     private Context context;
     private IMapController mapController;
+
+    private LocationManager locationManager;
+    private Location location = null;
+
+    //Overlays
+    private CompassOverlay compassOverlay;
+    private MyLocationNewOverlay myLocationNewOverlay;
+    private RotationGestureOverlay rotationGestureOverlay;
+    private ScaleBarOverlay scaleBarOverlay;
 
     public MapFragment() {
         // Required empty public constructor
@@ -71,26 +83,48 @@ public class MapFragment extends Fragment implements MapFragmentContract.View, M
 
         View view = inflater.inflate(R.layout.fragment_map, container, false);
         map = view.findViewById(R.id.mapview);
-        context = this.getContext();
         presenter = new MapFragmentPresenter(this, this.context);
-
-        /*Drawable nodeIcon = getResources().getDrawable(R.drawable.ic_menu_settings);
-        for (int i = 0; i < road.mNodes.size(); i++) {
-            RoadNode node = road.mNodes.get(i);
-            Marker nodeMarker = new Marker(map);
-            nodeMarker.setPosition(node.mLocation);
-            nodeMarker.setIcon(nodeIcon);
-            nodeMarker.setTitle("Step " + i);
-            map.getOverlays().add(nodeMarker);
-        }*/
 
         MapEventsOverlay OverlayEvents = new MapEventsOverlay(this);
         map.getOverlays().add(OverlayEvents);
 
-        MyLocationNewOverlay mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(context), map);
-        mLocationOverlay.enableMyLocation();
-        mLocationOverlay.enableFollowLocation();
+        ImageButton zoomIn = view.findViewById(R.id.zoom_in);
+        ImageButton zoomOut = view.findViewById(R.id.zoom_out);
+        zoomIn.setOnClickListener(view1 -> zoomIn());
+        zoomOut.setOnClickListener(view12 -> zoomOut());
 
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+
+        context = this.getContext();
+        final DisplayMetrics dm = context.getResources().getDisplayMetrics();
+
+
+        this.compassOverlay = new CompassOverlay(context, new InternalCompassOrientationProvider(context), map);
+        this.myLocationNewOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(context), map);
+
+        compassOverlay.enableCompass();
+
+        myLocationNewOverlay.enableMyLocation();
+        myLocationNewOverlay.enableFollowLocation();
+        myLocationNewOverlay.setOptionsMenuEnabled(true);
+
+        rotationGestureOverlay = new RotationGestureOverlay(map);
+        rotationGestureOverlay.setEnabled(true);
+
+        scaleBarOverlay = new ScaleBarOverlay(map);
+        scaleBarOverlay.setCentred(true);
+        scaleBarOverlay.setScaleBarOffset(dm.widthPixels / 2, 10);
+
+        map.setTilesScaledToDpi(true);
+        map.setMultiTouchControls(true);
+        map.setFlingEnabled(true);
+        map.getOverlays().add(this.myLocationNewOverlay);
+        map.getOverlays().add(this.compassOverlay);
+        map.getOverlays().add(this.scaleBarOverlay);
 
         SpeedDialView speedDialView = view.findViewById(R.id.speedDial);
         speedDialView.addActionItem(
@@ -146,54 +180,74 @@ public class MapFragment extends Fragment implements MapFragmentContract.View, M
                     startActivity(i);
                     return false;
                 case R.id.fab_my_location:
-                    Toast.makeText(context, "Localization", Toast.LENGTH_LONG).show();
+                    if (location != null) {
+                        GeoPoint myPosition = new GeoPoint(location.getLatitude(), location.getLongitude());
+                        map.getController().animateTo(myPosition);
+                    }
                     return false;
                 default:
                     return false;
             }
         });
-
-        CompassOverlay mCompassOverlay = new CompassOverlay(context, new InternalCompassOrientationProvider(context), map);
-        mCompassOverlay.enableCompass();
-        map.getOverlays().add(mCompassOverlay);
-
-        final Context context = this.getActivity();
-        final DisplayMetrics dm = context.getResources().getDisplayMetrics();
-        ScaleBarOverlay mScaleBarOverlay = new ScaleBarOverlay(map);
-        mScaleBarOverlay.setCentred(true);
-//play around with these values to get the location on screen in the right place for your application
-        mScaleBarOverlay.setScaleBarOffset(dm.widthPixels / 2, 10);
-        map.getOverlays().add(mScaleBarOverlay);
-
-        RotationGestureOverlay mRotationGestureOverlay = new RotationGestureOverlay(map);
-        mRotationGestureOverlay.setEnabled(true);
-        map.setMultiTouchControls(true);
-        map.getOverlays().add(mRotationGestureOverlay);
-
-        ImageButton zoomIn = view.findViewById(R.id.zoom_in);
-        ImageButton zoomOut = view.findViewById(R.id.zoom_out);
-        zoomIn.setOnClickListener(view1 -> zoomIn());
-        zoomOut.setOnClickListener(view12 -> zoomOut());
-
-        return view;
     }
 
     public void onResume() {
         super.onResume();
-        //this will refresh the osmdroid configuration on resuming.
-        //if you make changes to the configuration, use
-        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        //Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
-        map.onResume(); //needed for compass, my location overlays, v6.0.0 and up
+        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+
+        if (ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Permission is not granted
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.READ_CONTACTS)) {
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+            } else {
+                // No explanation needed; request the permission
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        } else {
+            // Permission has already been granted
+        }
+        try {
+            //this fails on AVD 19s, even with the appcompat check, says no provided named gps is available
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0l, 0f, this);
+        } catch (Exception ex) {
+        }
+
+        try {
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0l, 0f, this);
+        } catch (Exception ex) {
+        }
+
+        map.onResume();
+        myLocationNewOverlay.enableFollowLocation();
+        myLocationNewOverlay.enableMyLocation();
+        scaleBarOverlay.enableScaleBar();
     }
 
     public void onPause() {
         super.onPause();
-        //this will refresh the osmdroid configuration on resuming.
-        //if you make changes to the configuration, use
-        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        //Configuration.getInstance().save(this, prefs);
-        map.onPause();  //needed for compass, my location overlays, v6.0.0 and up
+        try {
+            locationManager.removeUpdates(this);
+        } catch (Exception ex) {
+        }
+
+        map.onPause();
+        compassOverlay.disableCompass();
+        myLocationNewOverlay.disableFollowLocation();
+        myLocationNewOverlay.disableMyLocation();
+        scaleBarOverlay.disableScaleBar();
     }
 
     @Override
@@ -249,13 +303,45 @@ public class MapFragment extends Fragment implements MapFragmentContract.View, M
     }
 
     @Override
-    public boolean longPressHelper(GeoPoint p) {
+    public boolean singleTapConfirmedHelper(GeoPoint p) {
         return false;
     }
 
     @Override
-    public boolean singleTapConfirmedHelper(GeoPoint p) {
+    public boolean longPressHelper(GeoPoint p) {
         presenter.addMarker(p, map, getResources().getDrawable(R.drawable.ic_marker));
         return false;
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String s) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String s) {
+
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        locationManager = null;
+        location = null;
+
+        myLocationNewOverlay = null;
+        compassOverlay = null;
+        scaleBarOverlay = null;
+        rotationGestureOverlay = null;
     }
 }

@@ -9,7 +9,11 @@
         android:id="@+id/nav_map"
         android:name="com.example.tripper.MapFragment"
         android:label="@string/menu_map"
-        tools:layout="@layout/fragment_map" />
+        tools:layout="@layout/fragment_map" >
+        <action
+            android:id="@+id/action_nav_map_to_nav_explore2"
+            app:destination="@+id/nav_explore" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_explore"
