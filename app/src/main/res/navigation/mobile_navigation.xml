@@ -9,8 +9,7 @@
         android:id="@+id/nav_map"
         android:name="com.example.tripper.MapFragment"
         android:label="@string/menu_map"
-        tools:layout="@layout/fragment_map" >
-    </fragment>
+        tools:layout="@layout/fragment_map"></fragment>
 
     <fragment
         android:id="@+id/nav_explore"
@@ -24,11 +23,11 @@
         android:label="@string/menu_your_trips"
         tools:layout="@layout/fragment_trips" />
 
-    <fragment
+    <!--<fragment
         android:id="@+id/nav_your_profile"
-        android:name="com.example.tripper.fragment.SignInFragment"
+        android:name="com.example.tripper.MapFragment"
         android:label="@string/menu_your_profile"
-        tools:layout="@layout/fragment_sign_in" />
+        tools:layout="@layout/fragment_map" />-->
 
     <fragment
         android:id="@+id/nav_help"
@@ -41,4 +40,30 @@
         android:name="com.example.tripper.MapFragment"
         android:label="@string/menu_settings"
         tools:layout="@layout/fragment_map" />
+    <fragment
+        android:id="@+id/resetPasswordFragment"
+        android:name="com.example.tripper.fragment.ResetPasswordFragment"
+        android:label="fragment_reset_password"
+        tools:layout="@layout/fragment_reset_password" />
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="com.example.tripper.fragment.SignUpFragment"
+        android:label="fragment_sign_up"
+        tools:layout="@layout/fragment_sign_up" />
+    <fragment
+        android:id="@+id/nav_your_profile"
+        android:name="com.example.tripper.fragment.SignInFragment"
+        android:label="fragment_sign_in"
+        tools:layout="@layout/fragment_sign_in">
+        <action
+            android:id="@+id/action_signInFragment_to_signUpFragment"
+            app:destination="@+id/signUpFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+        <action
+            android:id="@+id/action_signInFragment_to_nav_map"
+            app:destination="@id/nav_map"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_enter_anim" />
+    </fragment>
 </navigation>
