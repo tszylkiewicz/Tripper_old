@@ -8,6 +8,10 @@ import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
+import com.example.tripper.model.CMeans;
+import com.example.tripper.model.Centroid;
+import com.example.tripper.model.FuzzyCMeans;
+
 import org.osmdroid.bonuspack.routing.OSRMRoadManager;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
@@ -16,19 +20,10 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.Vector;
 
 public class MapFragmentPresenter implements MapFragmentContract.Presenter {
 

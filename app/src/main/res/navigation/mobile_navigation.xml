@@ -10,28 +10,25 @@
         android:name="com.example.tripper.MapFragment"
         android:label="@string/menu_map"
         tools:layout="@layout/fragment_map" >
-        <action
-            android:id="@+id/action_nav_map_to_nav_explore2"
-            app:destination="@+id/nav_explore" />
     </fragment>
 
     <fragment
         android:id="@+id/nav_explore"
-        android:name="com.example.tripper.FragmentExplore"
+        android:name="com.example.tripper.fragment.ExploreFragment"
         android:label="@string/menu_explore"
         tools:layout="@layout/fragment_explore" />
 
     <fragment
         android:id="@+id/nav_your_trips"
-        android:name="com.example.tripper.MapFragment"
+        android:name="com.example.tripper.fragment.TripsFragment"
         android:label="@string/menu_your_trips"
-        tools:layout="@layout/fragment_map" />
+        tools:layout="@layout/fragment_trips" />
 
     <fragment
         android:id="@+id/nav_your_profile"
-        android:name="com.example.tripper.MapFragment"
+        android:name="com.example.tripper.fragment.SignInFragment"
         android:label="@string/menu_your_profile"
-        tools:layout="@layout/fragment_map" />
+        tools:layout="@layout/fragment_sign_in" />
 
     <fragment
         android:id="@+id/nav_help"

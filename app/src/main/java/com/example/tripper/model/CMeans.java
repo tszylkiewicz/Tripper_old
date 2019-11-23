@@ -1,6 +1,5 @@
-package com.example.tripper;
+package com.example.tripper.model;
 
-import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.overlay.Marker;
 
 import java.io.ByteArrayInputStream;
