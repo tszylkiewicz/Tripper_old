@@ -43,17 +43,17 @@
     <fragment
         android:id="@+id/resetPasswordFragment"
         android:name="com.example.tripper.fragment.ResetPasswordFragment"
-        android:label="fragment_reset_password"
+        android:label="@string/title_reset_password"
         tools:layout="@layout/fragment_reset_password" />
     <fragment
         android:id="@+id/signUpFragment"
         android:name="com.example.tripper.fragment.SignUpFragment"
-        android:label="fragment_sign_up"
+        android:label="@string/title_sign_up"
         tools:layout="@layout/fragment_sign_up" />
     <fragment
         android:id="@+id/nav_your_profile"
         android:name="com.example.tripper.fragment.SignInFragment"
-        android:label="fragment_sign_in"
+        android:label="@string/title_sign_in"
         tools:layout="@layout/fragment_sign_in">
         <action
             android:id="@+id/action_signInFragment_to_signUpFragment"
