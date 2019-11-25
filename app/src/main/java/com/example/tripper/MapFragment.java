@@ -81,6 +81,8 @@ public class MapFragment extends Fragment implements MapFragmentContract.View, M
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
+        context = this.getContext();
+
         View view = inflater.inflate(R.layout.fragment_map, container, false);
         map = view.findViewById(R.id.mapview);
         presenter = new MapFragmentPresenter(this, this.context);
@@ -98,10 +100,7 @@ public class MapFragment extends Fragment implements MapFragmentContract.View, M
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-
-        context = this.getContext();
         final DisplayMetrics dm = context.getResources().getDisplayMetrics();
-
 
         this.compassOverlay = new CompassOverlay(context, new InternalCompassOrientationProvider(context), map);
         this.myLocationNewOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(context), map);
