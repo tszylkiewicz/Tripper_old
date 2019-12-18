@@ -29,7 +29,6 @@ public class MapFragmentPresenter implements MapFragmentContract.Presenter {
 
     public static int days;
     public static int type;
-    public static int max_distance;
 
     public ArrayList<Marker> markers;
     ArrayList<Polyline> roadsOnMap;

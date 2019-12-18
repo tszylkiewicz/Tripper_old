@@ -1,4 +1,4 @@
-package com.example.tripper.fragment;
+package com.example.tripper.fragment.authentication;
 
 import androidx.lifecycle.ViewModelProviders;
 
@@ -16,12 +16,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.tripper.R;
-import com.example.tripper.viewmodel.SignInViewModel;
-import com.example.tripper.viewmodel.SignUpViewModel;
+import com.example.tripper.viewmodel.UserViewModel;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.regex.Matcher;
@@ -29,13 +27,15 @@ import java.util.regex.Pattern;
 
 public class SignUpFragment extends Fragment {
 
-    private SignUpViewModel mViewModel;
+    private UserViewModel userViewModel;
 
     private TextInputLayout username;
     private TextInputLayout email;
     private TextInputLayout password;
     private TextInputLayout confirmPassword;
     private Button signUp;
+
+    private TextWatcher textWatcher;
 
     public static SignUpFragment newInstance() {
         return new SignUpFragment();
@@ -51,47 +51,47 @@ public class SignUpFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mViewModel = ViewModelProviders.of(requireActivity()).get(SignUpViewModel.class);
+        userViewModel = ViewModelProviders.of(requireActivity()).get(UserViewModel.class);
 
         username = view.findViewById(R.id.username);
         email = view.findViewById(R.id.email);
         password = view.findViewById(R.id.password);
         confirmPassword = view.findViewById(R.id.confirmPassword);
+        signUp = view.findViewById(R.id.signUp);
+        signUp.setEnabled(false);
+
+        textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                checkFields();
+            }
+
+        };
 
         username.getEditText().addTextChangedListener(textWatcher);
         email.getEditText().addTextChangedListener(textWatcher);
         password.getEditText().addTextChangedListener(textWatcher);
         confirmPassword.getEditText().addTextChangedListener(textWatcher);
 
-        signUp = view.findViewById(R.id.signUp);
-        signUp.setEnabled(false);
-
         final NavController navController = Navigation.findNavController(view);
 
         signUp.setOnClickListener(view1 -> {
+            userViewModel.signUp(email.getEditText().getText().toString(), username.getEditText().getText().toString(), password.getEditText().getText().toString());
             Toast.makeText(this.getContext(), "Signed up successfully", Toast.LENGTH_LONG).show();
             navController.navigate(R.id.nav_map, null);
         });
     }
 
-    TextWatcher textWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
-            checkFields();
-        }
-
-    };
-
-    public final void checkFields() {
+    private void checkFields() {
         boolean usernameValid = false;
         boolean emailValid = false;
         boolean passwordValid = false;
@@ -129,14 +129,10 @@ public class SignUpFragment extends Fragment {
     }
 
     private boolean isValidUsername(String target) {
-        if (target == null || target == "") {
-            return false;
-        } else {
-            return true;
-        }
+        return target != null && !target.equals("");
     }
 
-    public final boolean isValidPassword(String target) {
+    private boolean isValidPassword(String target) {
         if (target == null || target.equals("")) {
             return false;
         } else {
@@ -152,7 +148,7 @@ public class SignUpFragment extends Fragment {
         }
     }
 
-    public final boolean isValidEmail(String target) {
+    private boolean isValidEmail(String target) {
         if (target == null) {
             return false;
         } else {

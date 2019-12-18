@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 
 import com.example.tripper.R;
 import com.example.tripper.viewmodel.TripsViewModel;
+import com.example.tripper.viewmodel.UserViewModel;
 
 public class TripsFragment extends Fragment {
 
@@ -30,10 +31,9 @@ public class TripsFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(TripsViewModel.class);
-        // TODO: Use the ViewModel
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mViewModel = ViewModelProviders.of(requireActivity()).get(TripsViewModel.class);
     }
 
 }

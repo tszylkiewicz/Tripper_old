@@ -20,8 +20,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".PropertiesActivity"
-            android:theme="@style/AppTheme.PopUp"></activity>
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />

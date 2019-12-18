@@ -1,4 +1,4 @@
-package com.example.tripper.fragment;
+package com.example.tripper.fragment.authentication;
 
 import androidx.lifecycle.ViewModelProviders;
 
@@ -19,8 +19,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.tripper.R;
-import com.example.tripper.viewmodel.ResetPasswordViewModel;
-import com.example.tripper.viewmodel.SignInViewModel;
+import com.example.tripper.viewmodel.UserViewModel;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.regex.Matcher;
@@ -28,12 +27,14 @@ import java.util.regex.Pattern;
 
 public class ResetPasswordFragment extends Fragment {
 
-    private ResetPasswordViewModel mViewModel;
+    private UserViewModel userViewModel;
 
     private TextInputLayout oldPassword;
     private TextInputLayout newPassword;
     private TextInputLayout confirmPassword;
     private Button save;
+
+    private TextWatcher textWatcher;
 
     public static ResetPasswordFragment newInstance() {
         return new ResetPasswordFragment();
@@ -46,20 +47,30 @@ public class ResetPasswordFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(ResetPasswordViewModel.class);
-        // TODO: Use the ViewModel
-    }
-
-    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mViewModel = ViewModelProviders.of(requireActivity()).get(ResetPasswordViewModel.class);
+        userViewModel = ViewModelProviders.of(requireActivity()).get(UserViewModel.class);
 
         oldPassword = view.findViewById(R.id.oldPassword);
         newPassword = view.findViewById(R.id.newPassword);
         confirmPassword = view.findViewById(R.id.confirmPassword);
+
+        textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                checkFields();
+            }
+
+        };
 
         oldPassword.getEditText().addTextChangedListener(textWatcher);
         newPassword.getEditText().addTextChangedListener(textWatcher);
@@ -75,24 +86,7 @@ public class ResetPasswordFragment extends Fragment {
         });
     }
 
-    TextWatcher textWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
-            checkFields();
-        }
-
-    };
-
-    public final void checkFields() {
+    private void checkFields() {
         boolean emailValid = false;
         boolean passwordValid = false;
         if (!isValidPassword(oldPassword.getEditText().getText().toString())) {
@@ -114,7 +108,7 @@ public class ResetPasswordFragment extends Fragment {
         }
     }
 
-    public final boolean isValidPassword(String target) {
+    private boolean isValidPassword(String target) {
         if (target == null || target.equals("")) {
             return false;
         } else {

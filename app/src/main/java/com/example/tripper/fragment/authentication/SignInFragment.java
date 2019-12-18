@@ -1,9 +1,7 @@
-package com.example.tripper.fragment;
+package com.example.tripper.fragment.authentication;
 
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
 
-import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,11 +16,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.tripper.R;
-import com.example.tripper.viewmodel.SignInViewModel;
+import com.example.tripper.viewmodel.UserViewModel;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.regex.Matcher;
@@ -30,12 +27,14 @@ import java.util.regex.Pattern;
 
 public class SignInFragment extends Fragment {
 
-    private SignInViewModel mViewModel;
+    private UserViewModel userViewModel;
 
     private TextInputLayout email;
     private TextInputLayout password;
     private Button signIn;
     private Button signUp;
+
+    private TextWatcher textWatcher;
 
     public static SignInFragment newInstance() {
         return new SignInFragment();
@@ -50,20 +49,38 @@ public class SignInFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mViewModel = ViewModelProviders.of(requireActivity()).get(SignInViewModel.class);
+        userViewModel = ViewModelProviders.of(requireActivity()).get(UserViewModel.class);
 
         email = view.findViewById(R.id.email);
         password = view.findViewById(R.id.password);
-
-        email.getEditText().addTextChangedListener(textWatcher);
-        password.getEditText().addTextChangedListener(textWatcher);
 
         signIn = view.findViewById(R.id.signIn);
         signIn.setEnabled(false);
         signUp = view.findViewById(R.id.signUp);
 
+        textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                checkFields();
+            }
+
+        };
+
+        email.getEditText().addTextChangedListener(textWatcher);
+        password.getEditText().addTextChangedListener(textWatcher);
+
         final NavController navController = Navigation.findNavController(view);
         signIn.setOnClickListener(view1 -> {
+            userViewModel.signIn(email.getEditText().getText().toString(), password.getEditText().getText().toString());
             Toast.makeText(this.getContext(), "Logged in successfully", Toast.LENGTH_LONG).show();
             navController.navigate(R.id.nav_map, null);
         });
@@ -73,22 +90,6 @@ public class SignInFragment extends Fragment {
         });
     }
 
-    TextWatcher textWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
-            checkFields();
-        }
-
-    };
 
     public final void checkFields() {
         boolean emailValid = false;

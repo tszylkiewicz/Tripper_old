@@ -7,15 +7,19 @@
 
     <fragment
         android:id="@+id/nav_map"
-        android:name="com.example.tripper.MapFragment"
+        android:name="com.example.tripper.fragment.MapFragment"
         android:label="@string/menu_map"
-        tools:layout="@layout/fragment_map" />
+        tools:layout="@layout/fragment_map" >
+        <action
+            android:id="@+id/action_nav_map_to_mapSettingsFragment"
+            app:destination="@id/mapSettingsFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_explore"
-        android:name="com.example.tripper.fragment.SignInFragment"
+        android:name="com.example.tripper.fragment.ExploreFragment"
         android:label="@string/menu_explore"
-        tools:layout="@layout/fragment_sign_in" />
+        tools:layout="@layout/fragment_explore" />
 
     <fragment
         android:id="@+id/nav_your_trips"
@@ -31,28 +35,28 @@
 
     <fragment
         android:id="@+id/nav_help"
-        android:name="com.example.tripper.MapFragment"
+        android:name="com.example.tripper.fragment.MapFragment"
         android:label="@string/menu_help"
         tools:layout="@layout/fragment_map" />
 
     <fragment
         android:id="@+id/nav_settings"
-        android:name="com.example.tripper.MapFragment"
+        android:name="com.example.tripper.fragment.MapFragment"
         android:label="@string/menu_settings"
         tools:layout="@layout/fragment_map" />
     <fragment
         android:id="@+id/resetPasswordFragment"
-        android:name="com.example.tripper.fragment.ResetPasswordFragment"
+        android:name="com.example.tripper.fragment.authentication.ResetPasswordFragment"
         android:label="@string/title_reset_password"
         tools:layout="@layout/fragment_reset_password" />
     <fragment
         android:id="@+id/signUpFragment"
-        android:name="com.example.tripper.fragment.SignUpFragment"
+        android:name="com.example.tripper.fragment.authentication.SignUpFragment"
         android:label="@string/title_sign_up"
         tools:layout="@layout/fragment_sign_up" />
     <fragment
         android:id="@+id/nav_sign_in"
-        android:name="com.example.tripper.fragment.SignInFragment"
+        android:name="com.example.tripper.fragment.authentication.SignInFragment"
         android:label="@string/title_sign_in"
         tools:layout="@layout/fragment_sign_in">
         <action
@@ -65,10 +69,18 @@
             app:destination="@id/nav_map"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_enter_anim" />
+        <action
+            android:id="@+id/action_nav_sign_in_to_resetPasswordFragment"
+            app:destination="@id/resetPasswordFragment" />
     </fragment>
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.tripper.fragment.ProfileFragment"
         android:label="fragment_profile"
         tools:layout="@layout/fragment_profile" />
+    <fragment
+        android:id="@+id/mapSettingsFragment"
+        android:name="com.example.tripper.fragment.MapSettingsFragment"
+        android:label="fragment_map_settings"
+        tools:layout="@layout/fragment_map_settings" />
 </navigation>

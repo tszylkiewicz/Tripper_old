@@ -1,4 +1,4 @@
-package com.example.tripper;
+package com.example.tripper.fragment;
 
 
 import android.Manifest;
@@ -14,10 +14,15 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import android.os.StrictMode;
 import android.util.DisplayMetrics;
@@ -28,6 +33,12 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.tripper.MapFragmentContract;
+import com.example.tripper.MapFragmentPresenter;
+import com.example.tripper.R;
+import com.example.tripper.viewmodel.ExploreViewModel;
+import com.example.tripper.viewmodel.MapViewModel;
+import com.example.tripper.viewmodel.TripsViewModel;
 import com.google.android.gms.common.internal.Constants;
 import com.leinardi.android.speeddial.SpeedDialActionItem;
 import com.leinardi.android.speeddial.SpeedDialView;
@@ -54,6 +65,8 @@ import java.util.ArrayList;
 
 public class MapFragment extends Fragment implements MapFragmentContract.View, MapEventsReceiver, LocationListener {
 
+    private MapViewModel mapViewModel;
+
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 0;
     private MapFragmentPresenter presenter;
     private MapView map;
@@ -69,41 +82,46 @@ public class MapFragment extends Fragment implements MapFragmentContract.View, M
     private RotationGestureOverlay rotationGestureOverlay;
     private ScaleBarOverlay scaleBarOverlay;
 
-    public MapFragment() {
-        // Required empty public constructor
+
+    private SpeedDialView speedDialView;
+
+    public static MapFragment newInstance() {
+        return new MapFragment();
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_map, container, false);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mapViewModel = ViewModelProviders.of(requireActivity()).get(MapViewModel.class);
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
         context = this.getContext();
 
-        View view = inflater.inflate(R.layout.fragment_map, container, false);
         map = view.findViewById(R.id.mapview);
-        presenter = new MapFragmentPresenter(this, this.context);
+        ImageButton zoomIn = view.findViewById(R.id.zoom_in);
+        ImageButton zoomOut = view.findViewById(R.id.zoom_out);
+
+        presenter = new MapFragmentPresenter(this, getContext());
 
         MapEventsOverlay OverlayEvents = new MapEventsOverlay(this);
         map.getOverlays().add(OverlayEvents);
 
-        ImageButton zoomIn = view.findViewById(R.id.zoom_in);
-        ImageButton zoomOut = view.findViewById(R.id.zoom_out);
         zoomIn.setOnClickListener(view1 -> zoomIn());
         zoomOut.setOnClickListener(view12 -> zoomOut());
 
-        return view;
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
         final DisplayMetrics dm = context.getResources().getDisplayMetrics();
 
-        this.compassOverlay = new CompassOverlay(context, new InternalCompassOrientationProvider(context), map);
-        this.myLocationNewOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(context), map);
+        compassOverlay = new CompassOverlay(context, new InternalCompassOrientationProvider(context), map);
+        myLocationNewOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(context), map);
 
         compassOverlay.enableCompass();
 
@@ -121,48 +139,18 @@ public class MapFragment extends Fragment implements MapFragmentContract.View, M
         map.setTilesScaledToDpi(true);
         map.setMultiTouchControls(true);
         map.setFlingEnabled(true);
-        map.getOverlays().add(this.myLocationNewOverlay);
-        map.getOverlays().add(this.compassOverlay);
-        map.getOverlays().add(this.scaleBarOverlay);
+        map.getOverlays().add(myLocationNewOverlay);
+        map.getOverlays().add(compassOverlay);
+        map.getOverlays().add(scaleBarOverlay);
 
-        SpeedDialView speedDialView = view.findViewById(R.id.speedDial);
-        speedDialView.addActionItem(
-                new SpeedDialActionItem.Builder(R.id.fab_properties, R.drawable.ic_properties)
-                        .setLabel(getString(R.string.fab_properties))
-                        .setFabBackgroundColor(ContextCompat.getColor(context, R.color.primaryColor))
-                        .setFabImageTintColor(ContextCompat.getColor(context, R.color.text))
-                        .setLabelColor(ContextCompat.getColor(context, R.color.primaryText))
-                        .setLabelBackgroundColor(Color.WHITE)
-                        .create()
-        );
-        speedDialView.addActionItem(
-                new SpeedDialActionItem.Builder(R.id.fab_clear_map, R.drawable.ic_clear_map)
-                        .setLabel(getString(R.string.fab_clear_map))
-                        .setFabBackgroundColor(ContextCompat.getColor(context, R.color.primaryColor))
-                        .setFabImageTintColor(ContextCompat.getColor(context, R.color.text))
-                        .setLabelColor(ContextCompat.getColor(context, R.color.primaryText))
-                        .setLabelBackgroundColor(Color.WHITE)
-                        .create()
-        );
-        speedDialView.addActionItem(
-                new SpeedDialActionItem.Builder(R.id.fab_create_route, R.drawable.ic_play)
-                        .setLabel(getString(R.string.fab_create_route))
-                        .setFabBackgroundColor(ContextCompat.getColor(context, R.color.primaryColor))
-                        .setFabImageTintColor(ContextCompat.getColor(context, R.color.text))
-                        .setLabelColor(ContextCompat.getColor(context, R.color.primaryText))
-                        .setLabelBackgroundColor(Color.WHITE)
-                        .create()
-        );
-        speedDialView.addActionItem(
-                new SpeedDialActionItem.Builder(R.id.fab_my_location, R.drawable.ic_my_location)
-                        .setLabel(getString(R.string.fab_my_location))
-                        .setFabBackgroundColor(ContextCompat.getColor(context, R.color.primaryColor))
-                        .setFabImageTintColor(ContextCompat.getColor(context, R.color.text))
-                        .setLabelColor(ContextCompat.getColor(context, R.color.primaryText))
-                        .setLabelBackgroundColor(Color.WHITE)
-                        .create()
-        );
+        speedDialView = view.findViewById(R.id.speedDial);
+        addSpeedDialElement(R.id.fab_properties, R.drawable.ic_properties, R.string.fab_properties);
+        addSpeedDialElement(R.id.fab_clear_map, R.drawable.ic_clear_map, R.string.fab_clear_map);
+        addSpeedDialElement(R.id.fab_create_route, R.drawable.ic_play, R.string.fab_create_route);
+        addSpeedDialElement(R.id.fab_my_location, R.drawable.ic_my_location, R.string.fab_my_location);
+        addSpeedDialElement(R.id.fab_save_route, R.drawable.ic_clear_map, R.string.fab_save_route);
 
+        final NavController navController = Navigation.findNavController(view);
         speedDialView.setOnActionSelectedListener(speedDialActionItem -> {
             switch (speedDialActionItem.getId()) {
                 case R.id.fab_create_route:
@@ -175,14 +163,16 @@ public class MapFragment extends Fragment implements MapFragmentContract.View, M
                     return false;
 
                 case R.id.fab_properties:
-                    Intent i = new Intent(context.getApplicationContext(), PropertiesActivity.class);
-                    startActivity(i);
+                    navController.navigate(R.id.mapSettingsFragment, null);
                     return false;
                 case R.id.fab_my_location:
                     if (location != null) {
                         GeoPoint myPosition = new GeoPoint(location.getLatitude(), location.getLongitude());
                         map.getController().animateTo(myPosition);
                     }
+                    return false;
+                case R.id.fab_save_route:
+                    navController.navigate(R.id.nav_sign_in, null);
                     return false;
                 default:
                     return false;
@@ -342,5 +332,17 @@ public class MapFragment extends Fragment implements MapFragmentContract.View, M
         compassOverlay = null;
         scaleBarOverlay = null;
         rotationGestureOverlay = null;
+    }
+
+    private void addSpeedDialElement(int id, int drawable, int string) {
+        speedDialView.addActionItem(
+                new SpeedDialActionItem.Builder(id, drawable)
+                        .setLabel(getString(string))
+                        .setFabBackgroundColor(ContextCompat.getColor(context, R.color.primaryColor))
+                        .setFabImageTintColor(ContextCompat.getColor(context, R.color.text))
+                        .setLabelColor(ContextCompat.getColor(context, R.color.primaryText))
+                        .setLabelBackgroundColor(Color.WHITE)
+                        .create()
+        );
     }
 }
