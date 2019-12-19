@@ -11,7 +11,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class UserViewModel extends ViewModel {
-    // TODO: Implement the ViewModel
 
     public void signUp(String email, String username, String password) {
         Thread thread = new Thread(new Runnable() {

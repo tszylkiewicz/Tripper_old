@@ -20,6 +20,8 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -44,6 +46,7 @@ import com.leinardi.android.speeddial.SpeedDialActionItem;
 import com.leinardi.android.speeddial.SpeedDialView;
 
 import org.osmdroid.api.IMapController;
+import org.osmdroid.bonuspack.routing.OSRMRoadManager;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
@@ -63,12 +66,11 @@ import java.lang.ref.ReferenceQueue;
 import java.util.ArrayList;
 
 
-public class MapFragment extends Fragment implements MapFragmentContract.View, MapEventsReceiver, LocationListener {
+public class MapFragment extends Fragment implements MapEventsReceiver, LocationListener {
 
     private MapViewModel mapViewModel;
 
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 0;
-    private MapFragmentPresenter presenter;
     private MapView map;
     private Context context;
     private IMapController mapController;
@@ -79,9 +81,6 @@ public class MapFragment extends Fragment implements MapFragmentContract.View, M
     //Overlays
     private CompassOverlay compassOverlay;
     private MyLocationNewOverlay myLocationNewOverlay;
-    private RotationGestureOverlay rotationGestureOverlay;
-    private ScaleBarOverlay scaleBarOverlay;
-
 
     private SpeedDialView speedDialView;
 
@@ -95,11 +94,23 @@ public class MapFragment extends Fragment implements MapFragmentContract.View, M
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mapViewModel = ViewModelProviders.of(getActivity()).get(MapViewModel.class);
+        mapViewModel.getDays().observe(getActivity(), new Observer<Integer>() {
+            @Override
+            public void onChanged(@Nullable Integer msg) {
+                System.out.println("Zmieniono z mapa na: " + msg);
+
+            }
+        });
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mapViewModel = ViewModelProviders.of(requireActivity()).get(MapViewModel.class);
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -110,15 +121,11 @@ public class MapFragment extends Fragment implements MapFragmentContract.View, M
         ImageButton zoomIn = view.findViewById(R.id.zoom_in);
         ImageButton zoomOut = view.findViewById(R.id.zoom_out);
 
-        presenter = new MapFragmentPresenter(this, getContext());
-
         MapEventsOverlay OverlayEvents = new MapEventsOverlay(this);
         map.getOverlays().add(OverlayEvents);
 
         zoomIn.setOnClickListener(view1 -> zoomIn());
         zoomOut.setOnClickListener(view12 -> zoomOut());
-
-        final DisplayMetrics dm = context.getResources().getDisplayMetrics();
 
         compassOverlay = new CompassOverlay(context, new InternalCompassOrientationProvider(context), map);
         myLocationNewOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(context), map);
@@ -129,47 +136,40 @@ public class MapFragment extends Fragment implements MapFragmentContract.View, M
         myLocationNewOverlay.enableFollowLocation();
         myLocationNewOverlay.setOptionsMenuEnabled(true);
 
-        rotationGestureOverlay = new RotationGestureOverlay(map);
-        rotationGestureOverlay.setEnabled(true);
-
-        scaleBarOverlay = new ScaleBarOverlay(map);
-        scaleBarOverlay.setCentred(true);
-        scaleBarOverlay.setScaleBarOffset(dm.widthPixels / 2, 10);
-
         map.setTilesScaledToDpi(true);
         map.setMultiTouchControls(true);
         map.setFlingEnabled(true);
         map.getOverlays().add(myLocationNewOverlay);
         map.getOverlays().add(compassOverlay);
-        map.getOverlays().add(scaleBarOverlay);
+
+        map.setTileSource(TileSourceFactory.MAPNIK);
+        map.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.NEVER);
+        mapController = map.getController();
+        mapController.setZoom(17.0d);
+        mapController.setCenter(new GeoPoint(51.13, 19.63));
 
         speedDialView = view.findViewById(R.id.speedDial);
         addSpeedDialElement(R.id.fab_properties, R.drawable.ic_properties, R.string.fab_properties);
         addSpeedDialElement(R.id.fab_clear_map, R.drawable.ic_clear_map, R.string.fab_clear_map);
         addSpeedDialElement(R.id.fab_create_route, R.drawable.ic_play, R.string.fab_create_route);
-        addSpeedDialElement(R.id.fab_my_location, R.drawable.ic_my_location, R.string.fab_my_location);
-        addSpeedDialElement(R.id.fab_save_route, R.drawable.ic_clear_map, R.string.fab_save_route);
+        addSpeedDialElement(R.id.fab_save_route, R.drawable.ic_save, R.string.fab_save_route);
 
         final NavController navController = Navigation.findNavController(view);
         speedDialView.setOnActionSelectedListener(speedDialActionItem -> {
             switch (speedDialActionItem.getId()) {
                 case R.id.fab_create_route:
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        presenter.calculateRoad();
+                        removeAllRoutes();
+                        drawRoads(mapViewModel.calculateRoad(new OSRMRoadManager(context)));
                     }
                     return false;
                 case R.id.fab_clear_map:
-                    presenter.clearMap();
+                    removeAllMarkers();
+                    removeAllRoutes();
                     return false;
 
                 case R.id.fab_properties:
                     navController.navigate(R.id.mapSettingsFragment, null);
-                    return false;
-                case R.id.fab_my_location:
-                    if (location != null) {
-                        GeoPoint myPosition = new GeoPoint(location.getLatitude(), location.getLongitude());
-                        map.getController().animateTo(myPosition);
-                    }
                     return false;
                 case R.id.fab_save_route:
                     navController.navigate(R.id.nav_sign_in, null);
@@ -180,6 +180,7 @@ public class MapFragment extends Fragment implements MapFragmentContract.View, M
         });
     }
 
+    @Override
     public void onResume() {
         super.onResume();
         locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
@@ -222,9 +223,30 @@ public class MapFragment extends Fragment implements MapFragmentContract.View, M
         map.onResume();
         myLocationNewOverlay.enableFollowLocation();
         myLocationNewOverlay.enableMyLocation();
-        scaleBarOverlay.enableScaleBar();
+        // map.getOverlays().addAll(mapViewModel.getMarkers());
+        if (mapViewModel.getMarkers().size() > 0) {
+            ArrayList<Marker> oldMarkers = new ArrayList<>(mapViewModel.getMarkers());
+            mapViewModel.removeAllMarkers();
+            for (Marker marker : oldMarkers
+            ) {
+                Marker newMarker = new Marker(map);
+                newMarker.setPosition(marker.getPosition());
+                newMarker.setTitle("Element");
+                newMarker.setIcon(getResources().getDrawable(R.drawable.ic_marker));
+                newMarker.setOnMarkerClickListener((marker1, mapView) -> {
+                    removeMarker(marker1);
+                    return false;
+                });
+                mapViewModel.addMarker(newMarker);
+                map.getOverlays().add(newMarker);
+            }
+        }
+
+        //System.out.println("Dni mapa resume: " + mapViewModel.getDays().getValue());
+        //System.out.println("Dni mapa resume: " + mapViewModel.getTransportType().getValue());
     }
 
+    @Override
     public void onPause() {
         super.onPause();
         try {
@@ -236,55 +258,34 @@ public class MapFragment extends Fragment implements MapFragmentContract.View, M
         compassOverlay.disableCompass();
         myLocationNewOverlay.disableFollowLocation();
         myLocationNewOverlay.disableMyLocation();
-        scaleBarOverlay.disableScaleBar();
     }
 
-    @Override
-    public void removeAllMarkers(ArrayList<Marker> markers) {
-        map.getOverlays().removeAll(markers);
-        Toast.makeText(context, "Map has been cleared", Toast.LENGTH_LONG).show();
-        Log.d("overlays left", "" + map.getOverlays().size());
+    public void removeAllMarkers() {
+        map.getOverlays().removeAll(mapViewModel.getMarkers());
+        mapViewModel.removeAllMarkers();
     }
 
-    @Override
-    public void removeAllRoads(ArrayList<Polyline> polylines) {
-        map.getOverlays().removeAll(polylines);
+    public void removeAllRoutes() {
+        map.getOverlays().removeAll(mapViewModel.getRoutes());
+        mapViewModel.removeAllRoutes();
     }
 
-    @Override
-    public void addMarker(Marker marker) {
-        map.getOverlays().add(marker);
-
-    }
-
-    @Override
     public void removeMarker(Marker marker) {
+        mapViewModel.removeMarker(marker);
         map.getOverlays().remove(marker);
     }
 
-    @Override
     public void drawRoads(ArrayList<Polyline> roads) {
         map.getOverlays().addAll(roads);
     }
 
-    @Override
-    public void defaultSettings() {
-        map.setTileSource(TileSourceFactory.MAPNIK);
-        map.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.NEVER);
-        map.setMultiTouchControls(true);
-        mapController = map.getController();
-        mapController.setZoom(13.0d);
-        mapController.setCenter(new GeoPoint(51.13, 19.63));
-    }
-
-    @Override
     public void zoomIn() {
-        if (map.canZoomIn()) {
-            mapController.setZoom(map.getZoomLevelDouble() + 0.5d);
+        if (location != null) {
+            GeoPoint myPosition = new GeoPoint(location.getLatitude(), location.getLongitude());
+            map.getController().animateTo(myPosition);
         }
     }
 
-    @Override
     public void zoomOut() {
         if (map.canZoomOut()) {
             mapController.setZoom(map.getZoomLevelDouble() - 0.5d);
@@ -298,7 +299,16 @@ public class MapFragment extends Fragment implements MapFragmentContract.View, M
 
     @Override
     public boolean longPressHelper(GeoPoint p) {
-        presenter.addMarker(p, map, getResources().getDrawable(R.drawable.ic_marker));
+        Marker marker = new Marker(map);
+        marker.setPosition(p);
+        marker.setTitle("Element");
+        marker.setIcon(getResources().getDrawable(R.drawable.ic_marker));
+        marker.setOnMarkerClickListener((marker1, mapView) -> {
+            removeMarker(marker1);
+            return false;
+        });
+        mapViewModel.addMarker(marker);
+        map.getOverlays().add(marker);
         return false;
     }
 
@@ -309,17 +319,14 @@ public class MapFragment extends Fragment implements MapFragmentContract.View, M
 
     @Override
     public void onStatusChanged(String s, int i, Bundle bundle) {
-
     }
 
     @Override
     public void onProviderEnabled(String s) {
-
     }
 
     @Override
     public void onProviderDisabled(String s) {
-
     }
 
     @Override
@@ -330,8 +337,6 @@ public class MapFragment extends Fragment implements MapFragmentContract.View, M
 
         myLocationNewOverlay = null;
         compassOverlay = null;
-        scaleBarOverlay = null;
-        rotationGestureOverlay = null;
     }
 
     private void addSpeedDialElement(int id, int drawable, int string) {
