@@ -61,11 +61,36 @@ public class PossibilisticCMeans extends CMeans {
                     result += 1;
                     u1.get(j).set(i, 1 / result);*/
 
+                    /*result = Math.pow(result, 2);
                     result = result / ni;
-                    result = Math.pow(result, 2);
                     result = Math.pow(result, 1 / m - 1);
                     result += 1;
-                    u1.get(j).set(i, 1 / result);
+                    u1.get(j).set(i, 1 / result);*/
+
+                    //Analiza skupień - Wierzchoń, Kłopotek
+                    /*result = Math.pow(result, 2);
+                    result = result / ni;
+                    result = 1d + result;
+                    double test = 1 / (m - 1);
+                    result = Math.pow(result, test);
+                    u1.get(j).set(i, result);*/
+
+                    //Metody sztucznej inteligencji - Rutkowski
+                    /*result = result / ni;
+                    double test = 2 / (m - 1);
+                    result = Math.pow(result, test);
+                    result = 1 + result;
+                    result = 1 / result;
+                    u1.get(j).set(i, result);*/
+
+                    //Najczęściej w artykułach się pojawia ten wzór ale nie działa
+                    result = Math.pow(result, 2);
+                    result = result / ni;
+                    double test = 1d / (m - 1d);
+                    result = Math.pow(result, test);
+                    result = 1d + result;
+                    result = 1d / result;
+                    u1.get(j).set(i, result);
                 }
             }
 

@@ -98,13 +98,26 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mapViewModel = ViewModelProviders.of(getActivity()).get(MapViewModel.class);
-        mapViewModel.getDays().observe(getActivity(), new Observer<Integer>() {
-            @Override
-            public void onChanged(@Nullable Integer msg) {
-                System.out.println("Zmieniono z mapa na: " + msg);
+        mapViewModel.getDays().observe(getActivity(), msg -> System.out.println("Zmieniono z mapa na: " + msg));
 
-            }
+        mapViewModel.getCentroids().observe(getActivity(), centroids -> {
+            drawCentroids(centroids);
         });
+    }
+
+    private void drawCentroids(ArrayList<GeoPoint> centroids) {
+        for (GeoPoint geo :
+                centroids) {
+            Marker newMarker = new Marker(map);
+            newMarker.setPosition(geo);
+            newMarker.setTitle("Centroid");
+            newMarker.setOnMarkerClickListener((marker1, mapView) -> {
+                removeMarker(marker1);
+                return false;
+            });
+            map.getOverlays().add(newMarker);
+
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
