@@ -1,6 +1,7 @@
 package com.example.tripper;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
@@ -52,6 +53,15 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = settings.edit();
+        System.out.println(getPreferences(Context.MODE_PRIVATE).getString("username", "test1"));
+
+        editor.putString("username", "test2");
+
+        System.out.println(getPreferences(Context.MODE_PRIVATE).getString("username", "test3"));
+        editor.apply();
     }
 
     @Override

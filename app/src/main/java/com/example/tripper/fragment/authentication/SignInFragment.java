@@ -1,5 +1,6 @@
 package com.example.tripper.fragment.authentication;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.os.Bundle;
@@ -82,16 +83,16 @@ public class SignInFragment extends Fragment {
         signIn.setOnClickListener(view1 -> {
             userViewModel.signIn(email.getEditText().getText().toString(), password.getEditText().getText().toString());
             Toast.makeText(this.getContext(), "Logged in successfully", Toast.LENGTH_LONG).show();
-            navController.navigate(R.id.nav_map, null);
+            navController.navigate(R.id.action_signInFragment_to_nav_map);
         });
 
         signUp.setOnClickListener(view1 -> {
-            navController.navigate(R.id.signUpFragment, null);
+            navController.navigate(R.id.action_signInFragment_to_signUpFragment);
         });
     }
 
 
-    public final void checkFields() {
+    private void checkFields() {
         boolean emailValid = false;
         boolean passwordValid = false;
         if (!isValidEmail(email.getEditText().getText().toString())) {
@@ -113,7 +114,7 @@ public class SignInFragment extends Fragment {
         }
     }
 
-    public final boolean isValidPassword(String target) {
+    private boolean isValidPassword(String target) {
         if (target == null || target.equals("")) {
             return false;
         } else {
@@ -129,11 +130,17 @@ public class SignInFragment extends Fragment {
         }
     }
 
-    public final boolean isValidEmail(String target) {
+    private boolean isValidEmail(String target) {
         if (target == null) {
             return false;
         } else {
             return android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((AppCompatActivity)getActivity()).getSupportActionBar().hide();
     }
 }

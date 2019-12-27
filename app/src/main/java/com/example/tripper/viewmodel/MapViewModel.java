@@ -13,12 +13,14 @@ import com.example.tripper.model.CMeans;
 import com.example.tripper.model.Centroid;
 import com.example.tripper.model.FuzzyCMeans;
 import com.example.tripper.model.HeldKarp;
+import com.example.tripper.model.HeldKarpDouble;
 import com.example.tripper.model.PossibilisticCMeans;
 import com.example.tripper.model.enums.TransportType;
 
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
@@ -182,7 +184,9 @@ public class MapViewModel extends ViewModel {
         ) {
             ArrayList<GeoPoint> wps = new ArrayList<>();
             HeldKarpAlgorithm(centroid.markers);
-            for (Marker marker : RNN(centroid.markers) //ThreeOpt(centroid.markers)
+            //for (Marker marker : RNN(centroid.markers)
+            //for (Marker marker : ThreeOpt(centroid.markers)
+            for (Marker marker : HeldKarpAlgorithm(centroid.markers)
             ) {
                 wps.add(marker.getPosition());
             }
@@ -441,22 +445,62 @@ public class MapViewModel extends ViewModel {
         }
     }
 
-    private void HeldKarpAlgorithm(ArrayList<Marker> points) {
+    private ArrayList<Marker> HeldKarpAlgorithm(ArrayList<Marker> points) {
         int size = points.size();
-        int[][] distanceMatrix = {
+        double[][] distanceMatrix = new double[size][size];
+        for (Marker marker :
+                points) {
+            for (Marker marker2 :
+                    points) {
+                distanceMatrix[points.indexOf(marker)][points.indexOf(marker2)] = marker.getPosition().distanceToAsDouble(marker2.getPosition());
+            }
+        }
+        System.out.println("---DISTANCE MATRIX---");
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                System.out.print(distanceMatrix[i][j] + ", ");
+            }
+            System.out.println();
+        }
+        System.out.println("---END DISTANCE MATRIX---");
+
+        double[][] test1 = {
                 {0, 2, 9, 10},
                 {1, 0, 6, 4},
                 {15, 7, 0, 8},
                 {6, 3, 12, 0}
         };
 
-        HeldKarp test = new HeldKarp(distanceMatrix, 0);
+        double[][] test2 = {
+                {0, 49, 34, 96, 74},
+                {49, 0, 10, 94, 43},
+                {34, 10, 0, 21, 6},
+                {96, 94, 21, 0, 70},
+                {74, 43, 6, 70, 0}
+        };
+
+        double[][] test3 = {
+                {0, 10, 15, 20},
+                {10, 0, 35, 25},
+                {15, 35, 0, 30},
+                {20, 25, 30, 0}
+        };
+
+        //HeldKarp test = new HeldKarp(distanceMatrix, 0);
+        HeldKarpDouble test = new HeldKarpDouble(distanceMatrix, 0);
         List<Integer> solution = test.calculateHeldKarp();
 
+
+        ArrayList<Marker> resultSet = new ArrayList<>();
+
+        for (int i = 0; i < solution.size()-1; i++) {
+            resultSet.add(points.get(solution.get(i)));
+        }
         System.out.println("---HELD KARP SOLUTION---");
+        System.out.println(solution + ";");
+        System.out.println("---END HELD KARP SOLUTION---");
 
-        System.out.print(solution + ";");
-
+        return resultSet;
     }
 
     private double routeDistance(ArrayList<Marker> group) {
@@ -520,5 +564,13 @@ public class MapViewModel extends ViewModel {
     public void addCentroid(GeoPoint centroid) {
         centroids.getValue().add(centroid);
         centroids.setValue(centroids.getValue());
+    }
+
+    public void removeRoute(Polyline polyline) {
+        if (routes == null) {
+            routes = new ArrayList<>();
+        }
+        routes.remove(polyline);
+        System.out.println("Route removed");
     }
 }

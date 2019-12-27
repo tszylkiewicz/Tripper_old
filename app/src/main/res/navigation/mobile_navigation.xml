@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_map">
+    app:startDestination="@+id/nav_sign_in">
 
     <fragment
         android:id="@+id/nav_map"
         android:name="com.example.tripper.fragment.MapFragment"
         android:label="@string/menu_map"
-        tools:layout="@layout/fragment_map" >
+        tools:layout="@layout/fragment_map">
         <action
             android:id="@+id/action_nav_map_to_mapSettingsFragment"
             app:destination="@id/mapSettingsFragment" />
@@ -63,12 +63,15 @@
             android:id="@+id/action_signInFragment_to_signUpFragment"
             app:destination="@+id/signUpFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim" />
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popUpToInclusive="false" />
         <action
             android:id="@+id/action_signInFragment_to_nav_map"
             app:destination="@id/nav_map"
             app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_enter_anim" />
+            app:exitAnim="@anim/nav_default_enter_anim"
+            app:popUpTo="@+id/nav_sign_in"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_nav_sign_in_to_resetPasswordFragment"
             app:destination="@id/resetPasswordFragment" />

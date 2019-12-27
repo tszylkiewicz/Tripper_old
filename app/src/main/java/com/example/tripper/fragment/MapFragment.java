@@ -17,6 +17,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -196,6 +197,7 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
     @Override
     public void onResume() {
         super.onResume();
+        ((AppCompatActivity)getActivity()).getSupportActionBar().show();
         locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 
         if (ContextCompat.checkSelfPermission(getActivity(),
@@ -289,6 +291,15 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
     }
 
     public void drawRoads(ArrayList<Polyline> roads) {
+        for (Polyline road : roads
+        ) {
+            road.setOnClickListener((polyline, mapView, eventPos) -> {
+                mapViewModel.removeRoute(polyline);
+                mapView.getOverlays().remove(polyline);
+                return false;
+            });
+
+        }
         map.getOverlays().addAll(roads);
     }
 
