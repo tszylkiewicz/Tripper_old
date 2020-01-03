@@ -13,12 +13,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.tripper.R;
-import com.example.tripper.viewmodel.TripsViewModel;
-import com.example.tripper.viewmodel.UserViewModel;
+import com.example.tripper.viewmodel.TripViewModel;
 
 public class TripsFragment extends Fragment {
 
-    private TripsViewModel mViewModel;
+    private TripViewModel mViewModel;
 
     public static TripsFragment newInstance() {
         return new TripsFragment();
@@ -33,7 +32,7 @@ public class TripsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mViewModel = ViewModelProviders.of(requireActivity()).get(TripsViewModel.class);
+        mViewModel = ViewModelProviders.of(requireActivity()).get(TripViewModel.class);
     }
 
 }

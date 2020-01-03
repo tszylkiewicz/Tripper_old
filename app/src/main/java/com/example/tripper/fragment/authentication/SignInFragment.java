@@ -1,5 +1,6 @@
 package com.example.tripper.fragment.authentication;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -17,14 +18,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.example.tripper.R;
+import com.example.tripper.model.User;
 import com.example.tripper.viewmodel.UserViewModel;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import io.reactivex.disposables.CompositeDisposable;
 
 public class SignInFragment extends Fragment {
 
@@ -34,8 +38,12 @@ public class SignInFragment extends Fragment {
     private TextInputLayout password;
     private Button signIn;
     private Button signUp;
+    private TextView title;
 
     private TextWatcher textWatcher;
+    private NavController navController;
+
+    CompositeDisposable disposables = new CompositeDisposable();
 
     public static SignInFragment newInstance() {
         return new SignInFragment();
@@ -48,9 +56,14 @@ public class SignInFragment extends Fragment {
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        userViewModel = ViewModelProviders.of(requireActivity()).get(UserViewModel.class);
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        userViewModel = ViewModelProviders.of(requireActivity()).get(UserViewModel.class);
 
         email = view.findViewById(R.id.email);
         password = view.findViewById(R.id.password);
@@ -58,6 +71,8 @@ public class SignInFragment extends Fragment {
         signIn = view.findViewById(R.id.signIn);
         signIn.setEnabled(false);
         signUp = view.findViewById(R.id.signUp);
+
+        title = view.findViewById(R.id.title);
 
         textWatcher = new TextWatcher() {
             @Override
@@ -79,16 +94,48 @@ public class SignInFragment extends Fragment {
         email.getEditText().addTextChangedListener(textWatcher);
         password.getEditText().addTextChangedListener(textWatcher);
 
-        final NavController navController = Navigation.findNavController(view);
+        //CHEATING
+        email.getEditText().setText("test@wp.pl");
+        password.getEditText().setText("secret");
+
+        navController = Navigation.findNavController(view);
         signIn.setOnClickListener(view1 -> {
-            userViewModel.signIn(email.getEditText().getText().toString(), password.getEditText().getText().toString());
-            Toast.makeText(this.getContext(), "Logged in successfully", Toast.LENGTH_LONG).show();
-            navController.navigate(R.id.action_signInFragment_to_nav_map);
+            title.setText("HTTP Request in progress.");
+            signIn.setEnabled(false);
+            disposables.add(userViewModel.signIn(email.getEditText().getText().toString(), password.getEditText().getText().toString())
+                    .subscribe(this::OnSignIn, this::SignInDenied)
+            );
         });
 
         signUp.setOnClickListener(view1 -> {
             navController.navigate(R.id.action_signInFragment_to_signUpFragment);
         });
+
+    }
+
+    private void OnSignIn(User user) {
+        System.out.println(user.getFormattedInfo());
+        userViewModel.setCurrentUser(user);
+        signIn.setEnabled(true);
+        title.setText("Zalogowano pomyślnie");
+        navController.navigate(R.id.action_signInFragment_to_nav_map);
+    }
+
+    private void SignInDenied(Throwable throwable) {
+        title.setText("Błędne dane logowania");
+        signIn.setEnabled(true);
+        System.out.println(throwable);
+        AlertDialog.Builder dlgAlert = new AlertDialog.Builder(getContext());
+
+        dlgAlert.setMessage("Incorrect email or password");
+        dlgAlert.setPositiveButton("OK", null);
+        dlgAlert.setCancelable(true);
+        dlgAlert.create().show();
+
+        dlgAlert.setPositiveButton("Ok",
+                (dialog, which) -> {
+
+                });
     }
 
 
@@ -125,8 +172,8 @@ public class SignInFragment extends Fragment {
 
             pattern = Pattern.compile(PASSWORD_PATTERN);
             matcher = pattern.matcher(target);
-            System.out.println(matcher.matches());
-            return matcher.matches();
+            //return matcher.matches();
+            return true;
         }
     }
 
@@ -141,6 +188,12 @@ public class SignInFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        ((AppCompatActivity)getActivity()).getSupportActionBar().hide();
+        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        disposables.dispose();
     }
 }

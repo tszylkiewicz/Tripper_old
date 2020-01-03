@@ -5,14 +5,9 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -26,9 +21,18 @@ import org.osmdroid.config.Configuration;
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
-
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
+
+    private static MainActivity instance;
+
+    public static MainActivity getInstance() {
+        return instance;
+    }
+
+    public static Context getAppContext() {
+        return instance.getApplicationContext();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,14 +58,15 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        SharedPreferences.Editor editor = settings.edit();
-        System.out.println(getPreferences(Context.MODE_PRIVATE).getString("username", "test1"));
 
-        editor.putString("username", "test2");
-
-        System.out.println(getPreferences(Context.MODE_PRIVATE).getString("username", "test3"));
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("tripperToken", "EMPTY");
         editor.apply();
+
+        String token = sharedPref.getString("tripperToken", "EMPTY");
+        System.out.println("LOGIN TOKEN: " + token);
+
     }
 
     @Override
@@ -78,4 +83,8 @@ public class MainActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 }

@@ -4,7 +4,7 @@ public abstract class Model {
 
     private int id;
 
-    public Model(int id) {
+    Model(int id) {
         this.id = id;
     }
 

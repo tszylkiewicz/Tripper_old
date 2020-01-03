@@ -1,26 +1,22 @@
 package com.example.tripper.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class User extends Model {
 
     private String email;
     private String username;
+    @SerializedName(value = "firstname")
     private String firstName;
+    @SerializedName(value = "lastname")
     private String lastName;
-    private String phone;
-    private String password;
-    private boolean signedIn;
-    private boolean active;
 
-    public User(int id, String email, String username, String password, String firstName, String lastName, String phone, boolean signedIn, boolean active) {
+    public User(int id, String email, String username, String firstName, String lastName) {
         super(id);
         this.email = email;
         this.username = username;
-        this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.phone = phone;
-        this.signedIn = signedIn;
-        this.active = active;
     }
 
     public String getEmail() {
@@ -55,35 +51,15 @@ public class User extends Model {
         this.lastName = lastName;
     }
 
-    public String getPhone() {
-        return phone;
-    }
+    public String getFormattedInfo() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Id: " + getId() + "\n");
+        builder.append("email: " + email + "\n");
+        builder.append("Username: " + username + "\n");
+        builder.append("firstName: " + firstName + "\n");
+        builder.append("lastName: " + lastName + "\n");
 
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    public boolean isSignedIn() {
-        return signedIn;
-    }
-
-    public void setSignedIn(boolean signedIn) {
-        this.signedIn = signedIn;
+        return new String(builder);
     }
 }

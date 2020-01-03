@@ -39,4 +39,20 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:17.0.0'
     implementation 'com.github.MKergall:osmbonuspack:6.6.0'
     implementation "com.leinardi.android:speed-dial:3.1.0"
+    implementation 'com.android.volley:volley:1.1.1'
+
+    // RxJava library and RxAndroid for Android specific bindings
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.10'
+
+    // Retrofit and OkHttp
+    implementation 'com.squareup.retrofit2:retrofit:2.6.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.12.3'
+
+    // RxJava retrofit adapter and Retrofit Gson converter
+    implementation 'com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
+}
+repositories {
+    mavenCentral()
 }
