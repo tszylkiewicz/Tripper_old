@@ -3,7 +3,6 @@ package com.example.tripper.viewmodel;
 import android.graphics.Color;
 import android.os.Build;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 
 import androidx.annotation.RequiresApi;
 import androidx.lifecycle.MutableLiveData;
@@ -12,21 +11,16 @@ import androidx.lifecycle.ViewModel;
 import com.example.tripper.model.CMeans;
 import com.example.tripper.model.Centroid;
 import com.example.tripper.model.FuzzyCMeans;
-import com.example.tripper.model.HeldKarp;
 import com.example.tripper.model.HeldKarpDouble;
-import com.example.tripper.model.PossibilisticCMeans;
 import com.example.tripper.model.enums.TransportType;
 
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,7 +89,7 @@ public class MapViewModel extends ViewModel {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public ArrayList<Polyline> calculateRoad(RoadManager roadManager) {
+    public ArrayList<ArrayList<Marker>> calculateRoad(RoadManager roadManager) {
         routes.clear();
         //kMeansAlgorithm(roadManager);
         if (days.getValue() == 0) {
@@ -166,7 +160,7 @@ public class MapViewModel extends ViewModel {
     }
 
 
-    public ArrayList<Polyline> fuzzyCMeans(RoadManager roadManager) {
+    public ArrayList<ArrayList<Marker>> fuzzyCMeans(RoadManager roadManager) {
         CMeans fuzzyCMeans = new FuzzyCMeans(days.getValue(), 0.0001, 2, markers);
         //CMeans fuzzyCMeans = new PossibilisticCMeans(days.getValue(), 0.0001, 2, markers);
 
@@ -179,18 +173,22 @@ public class MapViewModel extends ViewModel {
             addCentroid(centroids.get(i).position);
         }
 
+        ArrayList<ArrayList<Marker>> trips = new ArrayList<>();
         fuzzyCMeans.generateClusters();
         for (Centroid centroid : centroids
         ) {
             ArrayList<GeoPoint> wps = new ArrayList<>();
-            HeldKarpAlgorithm(centroid.markers);
+            ArrayList<Marker> tripPoints = new ArrayList<>();
+            //HeldKarpAlgorithm(centroid.markers);
             //for (Marker marker : RNN(centroid.markers)
             //for (Marker marker : ThreeOpt(centroid.markers)
             for (Marker marker : HeldKarpAlgorithm(centroid.markers)
             ) {
                 wps.add(marker.getPosition());
+                tripPoints.add(marker);
             }
-            roads = roadManager.getRoads(wps);
+            trips.add(tripPoints);
+            /*roads = roadManager.getRoads(wps);
 
             for (Road singleRoad : roads
             ) {
@@ -202,10 +200,11 @@ public class MapViewModel extends ViewModel {
                     roadOverlay.setWidth(8);
                     routes.add(roadOverlay);
                 }
-            }
+            }*/
             //this.view.drawRoads(routes);
         }
-        return routes;
+        return trips;
+        //return routes;
         //TEST SET
         /*ArrayList<Marker> testSet = new ArrayList<>();
 
@@ -493,7 +492,7 @@ public class MapViewModel extends ViewModel {
 
         ArrayList<Marker> resultSet = new ArrayList<>();
 
-        for (int i = 0; i < solution.size()-1; i++) {
+        for (int i = 0; i < solution.size() - 1; i++) {
             resultSet.add(points.get(solution.get(i)));
         }
         System.out.println("---HELD KARP SOLUTION---");

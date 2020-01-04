@@ -1,6 +1,7 @@
 package com.example.tripper.model;
 
 import com.example.tripper.model.enums.TransportType;
+import com.google.gson.annotations.SerializedName;
 
 import org.osmdroid.views.overlay.Marker;
 
@@ -8,20 +9,27 @@ import java.util.ArrayList;
 
 public class Trip extends Model {
 
-    private User user;
-    private ArrayList<Marker> points;
+
+    @SerializedName(value = "user_id")
+    private int userId;
     private String name;
     private String description;
     private double distance;
-    private TransportType transportType;
+    @SerializedName(value = "transport_type")
+    private String transportType;
     private double rating;
+    @SerializedName(value = "rating_count")
     private int ratingCount;
     private boolean shared;
 
-    public Trip(int id, User user, ArrayList<Marker> points, String name, String description, double distance, TransportType transportType, double rating, int ratingCount, boolean shared) {
+    public Trip() {
+        super(1);
+
+    }
+
+    public Trip(int id, int userId, String name, String description, double distance, String transportType, double rating, int ratingCount, boolean shared) {
         super(id);
-        this.user = user;
-        this.points = points;
+        this.userId = userId;
         this.name = name;
         this.description = description;
         this.distance = distance;
@@ -31,21 +39,12 @@ public class Trip extends Model {
         this.shared = shared;
     }
 
-
-    public User getUser() {
-        return user;
+    public int getUser() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public ArrayList<Marker> getPoints() {
-        return points;
-    }
-
-    public void setPoints(ArrayList<Marker> points) {
-        this.points = points;
+    public void setUser(int userId) {
+        this.userId = userId;
     }
 
     public String getName() {
@@ -72,11 +71,11 @@ public class Trip extends Model {
         this.distance = distance;
     }
 
-    public TransportType getTransportType() {
+    public String getTransportType() {
         return transportType;
     }
 
-    public void setTransportType(TransportType transportType) {
+    public void setTransportType(String transportType) {
         this.transportType = transportType;
     }
 
@@ -102,5 +101,20 @@ public class Trip extends Model {
 
     public void setShared(boolean shared) {
         this.shared = shared;
+    }
+
+    public String getAllData(){
+        StringBuilder builder = new StringBuilder();
+        builder.append("Id: " + getId() + "\n");
+        builder.append("user: " + userId + "\n");
+        builder.append("name: " + name + "\n");
+        builder.append("description: " + description + "\n");
+        builder.append("distance: " + distance + "\n");
+        builder.append("transportType: " + transportType + "\n");
+        builder.append("rating: " + rating + "\n");
+        builder.append("ratingCount: " + ratingCount + "\n");
+        builder.append("shared: " + shared + "\n");
+
+        return new String(builder);
     }
 }

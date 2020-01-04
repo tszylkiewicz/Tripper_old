@@ -18,11 +18,21 @@ import com.google.android.material.navigation.NavigationView;
 
 import org.osmdroid.config.Configuration;
 
+import io.reactivex.disposables.CompositeDisposable;
+
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
+
+    private static CompositeDisposable disposables;
+    public static CompositeDisposable getDisposables() {
+        if(disposables == null){
+            disposables = new CompositeDisposable();
+        }
+        return disposables;
+    }
 
     private static MainActivity instance;
 
@@ -86,5 +96,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        getDisposables().dispose();
     }
 }

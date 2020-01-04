@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.tripper.MainActivity;
 import com.example.tripper.model.User;
 import com.example.tripper.viewmodel.MapViewModel;
 import com.example.tripper.viewmodel.ProfileViewModel;
@@ -42,8 +43,6 @@ public class ProfileFragment extends Fragment {
     private Button cancel;
 
     private User user;
-
-    CompositeDisposable disposables = new CompositeDisposable();
 
     public static ProfileFragment newInstance() {
         return new ProfileFragment();
@@ -92,7 +91,7 @@ public class ProfileFragment extends Fragment {
             user.setFirstName(firstName.getText().toString());
             user.setLastName(lastName.getText().toString());
 
-            disposables.add(userViewModel.update(user)
+            MainActivity.getDisposables().add(userViewModel.update(user)
                     .subscribe(user1 -> {
                         System.out.println("LOL");
                         System.out.println(user1.getFormattedInfo());

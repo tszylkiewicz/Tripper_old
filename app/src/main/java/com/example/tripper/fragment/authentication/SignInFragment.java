@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.tripper.MainActivity;
 import com.example.tripper.R;
 import com.example.tripper.model.User;
 import com.example.tripper.viewmodel.UserViewModel;
@@ -42,8 +43,6 @@ public class SignInFragment extends Fragment {
 
     private TextWatcher textWatcher;
     private NavController navController;
-
-    CompositeDisposable disposables = new CompositeDisposable();
 
     public static SignInFragment newInstance() {
         return new SignInFragment();
@@ -102,7 +101,7 @@ public class SignInFragment extends Fragment {
         signIn.setOnClickListener(view1 -> {
             title.setText("HTTP Request in progress.");
             signIn.setEnabled(false);
-            disposables.add(userViewModel.signIn(email.getEditText().getText().toString(), password.getEditText().getText().toString())
+            MainActivity.getDisposables().add(userViewModel.signIn(email.getEditText().getText().toString(), password.getEditText().getText().toString())
                     .subscribe(this::OnSignIn, this::SignInDenied)
             );
         });
@@ -189,11 +188,5 @@ public class SignInFragment extends Fragment {
     public void onResume() {
         super.onResume();
         ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        disposables.dispose();
     }
 }

@@ -23,18 +23,26 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import android.os.StrictMode;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.PopupMenu;
 
+import com.example.tripper.MainActivity;
 import com.example.tripper.R;
+import com.example.tripper.model.Trip;
 import com.example.tripper.viewmodel.MapViewModel;
+import com.example.tripper.viewmodel.TripViewModel;
 import com.leinardi.android.speeddial.SpeedDialActionItem;
 import com.leinardi.android.speeddial.SpeedDialView;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.routing.OSRMRoadManager;
+import org.osmdroid.bonuspack.routing.Road;
+import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
@@ -45,15 +53,21 @@ import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
+import org.osmdroid.views.overlay.infowindow.BasicInfoWindow;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
+
+import io.reactivex.disposables.CompositeDisposable;
 
 
 public class MapFragment extends Fragment implements MapEventsReceiver, LocationListener {
 
     private MapViewModel mapViewModel;
+    private TripViewModel tripViewModel;
 
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 0;
     private MapView map;
@@ -69,6 +83,8 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
 
     private SpeedDialView speedDialView;
 
+    private CompositeDisposable disposables = new CompositeDisposable();
+
     public static MapFragment newInstance() {
         return new MapFragment();
     }
@@ -83,6 +99,7 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mapViewModel = ViewModelProviders.of(getActivity()).get(MapViewModel.class);
+        tripViewModel = ViewModelProviders.of(getActivity()).get(TripViewModel.class);
         mapViewModel.getDays().observe(getActivity(), msg -> System.out.println("Zmieniono z mapa na: " + msg));
 
         mapViewModel.getCentroids().observe(getActivity(), centroids -> {
@@ -181,7 +198,7 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
     @Override
     public void onResume() {
         super.onResume();
-        ((AppCompatActivity)getActivity()).getSupportActionBar().show();
+        ((AppCompatActivity) getActivity()).getSupportActionBar().show();
         locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 
         if (ContextCompat.checkSelfPermission(getActivity(),
@@ -274,17 +291,61 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
         map.getOverlays().remove(marker);
     }
 
-    public void drawRoads(ArrayList<Polyline> roads) {
-        for (Polyline road : roads
+    public void drawRoads(ArrayList<ArrayList<Marker>> markers) {
+        Random rnd = new Random();
+        ArrayList<Polyline> routes = new ArrayList<>();
+        RoadManager roadManager = new OSRMRoadManager(context);
+
+        for (ArrayList<Marker> markerList : markers) {
+            ArrayList<GeoPoint> wps = new ArrayList<>();
+
+            for (Marker marker : markerList
+            ) {
+                wps.add(marker.getPosition());
+            }
+            Road[] roads = roadManager.getRoads(wps);
+
+            for (Road singleRoad : roads
+            ) {
+                if (singleRoad.mStatus != Road.STATUS_OK) {
+                    Log.d("Road Status", "" + singleRoad.mStatus);
+                } else {
+                    Polyline roadOverlay = RoadManager.buildRoadOverlay(singleRoad);
+                    roadOverlay.setColor(Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)));
+                    roadOverlay.setWidth(8);
+                    routes.add(roadOverlay);
+                    tripViewModel.addCreatedRoute(roadOverlay, markerList);
+                }
+            }
+        }
+        for (Polyline road : routes
         ) {
             road.setOnClickListener((polyline, mapView, eventPos) -> {
-                mapViewModel.removeRoute(polyline);
-                mapView.getOverlays().remove(polyline);
+
+                PopupMenu popupMenu = new PopupMenu(getActivity(), map);
+
+                popupMenu.setOnMenuItemClickListener(menuItem -> {
+                    switch (menuItem.getItemId()) {
+                        case R.id.save:
+                            tripViewModel.savePoints(polyline);
+                            return true;
+                        case R.id.remove:
+                            mapViewModel.removeRoute(polyline);
+                            mapView.getOverlays().remove(polyline);
+                            return true;
+                        default:
+                            return false;
+                    }
+                });
+                popupMenu.inflate(R.menu.route_menu);
+                popupMenu.show();
+                //mapViewModel.removeRoute(polyline);
+                //mapView.getOverlays().remove(polyline);
                 return false;
             });
 
         }
-        map.getOverlays().addAll(roads);
+        map.getOverlays().addAll(routes);
     }
 
     public void zoomIn() {

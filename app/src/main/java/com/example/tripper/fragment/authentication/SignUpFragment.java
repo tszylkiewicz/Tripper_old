@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tripper.MainActivity;
 import com.example.tripper.R;
 import com.example.tripper.model.User;
 import com.example.tripper.viewmodel.UserViewModel;
@@ -44,7 +45,6 @@ public class SignUpFragment extends Fragment {
     private TextView title;
 
     private TextWatcher textWatcher;
-    CompositeDisposable disposables = new CompositeDisposable();
     NavController navController;
 
     public static SignUpFragment newInstance() {
@@ -103,7 +103,7 @@ public class SignUpFragment extends Fragment {
         signUp.setOnClickListener(view1 -> {
             title.setText("HTTP Request in progress.");
             signUp.setEnabled(false);
-            disposables.add(userViewModel.signUp(email.getEditText().getText().toString(), username.getEditText().getText().toString(), password.getEditText().getText().toString())
+            MainActivity.getDisposables().add(userViewModel.signUp(email.getEditText().getText().toString(), username.getEditText().getText().toString(), password.getEditText().getText().toString())
                     .subscribe(this::OnSignUp, this::SignUpDenied)
             );
         });
