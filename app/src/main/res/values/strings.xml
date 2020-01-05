@@ -24,7 +24,7 @@
     <string name="fab_clear_map">Clear all markers</string>
     <string name="fab_properties">Properties</string>
     <string name="fab_my_location">My location</string>
-    <string name="fab_save_route">Save route</string>
+    <string name="fab_clear_routes">Clear all routes</string>
 
     <string name="hint_password">Password</string>
     <string name="hint_username">Username</string>

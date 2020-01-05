@@ -1,9 +1,11 @@
 package com.example.tripper.fragment;
 
+import androidx.annotation.RequiresApi;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -19,11 +21,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.tripper.MainActivity;
+import com.example.tripper.model.Trip;
 import com.example.tripper.model.User;
 import com.example.tripper.viewmodel.MapViewModel;
 import com.example.tripper.viewmodel.ProfileViewModel;
 import com.example.tripper.R;
+import com.example.tripper.viewmodel.TripViewModel;
 import com.example.tripper.viewmodel.UserViewModel;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import io.reactivex.disposables.CompositeDisposable;
 
@@ -32,11 +39,15 @@ import static android.text.InputType.TYPE_NULL;
 public class ProfileFragment extends Fragment {
 
     private UserViewModel userViewModel;
+    private TripViewModel tripViewModel;
 
     private EditText username;
     private EditText firstName;
     private EditText lastName;
+
     private TextView email;
+    private TextView tripsCreated;
+    private TextView tripsPublished;
 
     private Button edit;
     private Button save;
@@ -58,8 +69,10 @@ public class ProfileFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         userViewModel = ViewModelProviders.of(requireActivity()).get(UserViewModel.class);
+        tripViewModel = ViewModelProviders.of(requireActivity()).get(TripViewModel.class);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -67,10 +80,14 @@ public class ProfileFragment extends Fragment {
         user = userViewModel.getCurrentUser();
         System.out.println(user.getFormattedInfo());
 
-        email = view.findViewById(R.id.email);
         username = view.findViewById(R.id.username);
         firstName = view.findViewById(R.id.firstName);
         lastName = view.findViewById(R.id.lastName);
+
+        email = view.findViewById(R.id.email);
+        tripsCreated = view.findViewById(R.id.tripsCreated);
+        tripsPublished = view.findViewById(R.id.tripsPublished);
+
         edit = view.findViewById(R.id.edit);
         save = view.findViewById(R.id.save);
         cancel = view.findViewById(R.id.cancel);
@@ -78,26 +95,26 @@ public class ProfileFragment extends Fragment {
         disableEdition();
         setDefaultValues();
 
-        edit.setOnClickListener(view1 -> {
-            enableEdition();
-        });
+
+        MainActivity.getDisposables().add(tripViewModel.getAllUserTrips(user.getId()).subscribe(user1 -> {
+                    System.out.println("POBRANO WSZYSTKIE WYCIECZKI");
+                    DisplayTripsStats(user1);
+                }, Throwable::printStackTrace)
+        );
+
+
+        edit.setOnClickListener(view1 -> enableEdition());
 
         save.setOnClickListener(view1 -> {
-            System.out.println("Test1:" + username.getText().toString());
-            System.out.println("Test1:" + firstName.getText().toString());
-            System.out.println("Test1:" + lastName.getText().toString());
-
             user.setUsername(username.getText().toString());
             user.setFirstName(firstName.getText().toString());
             user.setLastName(lastName.getText().toString());
 
             MainActivity.getDisposables().add(userViewModel.update(user)
                     .subscribe(user1 -> {
-                        System.out.println("LOL");
+                        System.out.println("NEW USER DATA");
                         System.out.println(user1.getFormattedInfo());
-                    }, throwable -> {
-                        throwable.printStackTrace();
-                    })
+                    }, Throwable::printStackTrace)
             );
             userViewModel.setCurrentUser(user);
             disableEdition();
@@ -107,6 +124,18 @@ public class ProfileFragment extends Fragment {
             setDefaultValues();
             disableEdition();
         });
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void DisplayTripsStats(List<Trip> trips) {
+
+        tripsCreated.setText(String.valueOf(trips.size()));
+
+        List<Trip> published = trips.stream().filter(trip ->
+                trip.isShared() == 1
+        ).collect(Collectors.toList());
+
+        tripsPublished.setText(String.valueOf(published.size()));
     }
 
     private void setDefaultValues() {

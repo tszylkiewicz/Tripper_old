@@ -1,5 +1,6 @@
 package com.example.tripper.viewmodel;
 
+import android.media.browse.MediaBrowser;
 import android.util.Pair;
 
 import androidx.lifecycle.ViewModel;
@@ -80,5 +81,13 @@ public class TripViewModel extends ViewModel {
             createdRoutes = new HashMap<>();
         }
         createdRoutes.put(roadOverlay, markerList);
+    }
+
+    public Single<List<Trip>> getAllUserTrips(int userId) {
+        return tripRepository.getAllUserTrips(userId).observeOn(mainThread()).subscribeOn(Schedulers.io());
+    }
+
+    public Single<List<Trip>> getAllPublicTrips() {
+        return tripRepository.getAllPublicTrips().observeOn(mainThread()).subscribeOn(Schedulers.io());
     }
 }

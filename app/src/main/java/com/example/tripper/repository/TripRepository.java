@@ -40,4 +40,12 @@ public class TripRepository {
         }
         return api.addTripPoints(request);
     }
+
+    public Single<List<Trip>> getAllUserTrips(int userId) {
+        return api.getAllUserTrips(userId);
+    }
+
+    public Single<List<Trip>> getAllPublicTrips() {
+        return api.getAllPublicTrips();
+    }
 }

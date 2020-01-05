@@ -20,14 +20,14 @@ public class Trip extends Model {
     private double rating;
     @SerializedName(value = "rating_count")
     private int ratingCount;
-    private boolean shared;
+    private int shared;
 
     public Trip() {
         super(1);
 
     }
 
-    public Trip(int id, int userId, String name, String description, double distance, String transportType, double rating, int ratingCount, boolean shared) {
+    public Trip(int id, int userId, String name, String description, double distance, String transportType, double rating, int ratingCount, int shared) {
         super(id);
         this.userId = userId;
         this.name = name;
@@ -95,11 +95,11 @@ public class Trip extends Model {
         this.ratingCount = ratingCount;
     }
 
-    public boolean isShared() {
+    public int isShared() {
         return shared;
     }
 
-    public void setShared(boolean shared) {
+    public void setShared(int shared) {
         this.shared = shared;
     }
 

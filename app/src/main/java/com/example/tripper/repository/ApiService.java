@@ -48,6 +48,12 @@ public interface ApiService {
     @POST("trip")
     Single<Trip> createTrip(@Body JsonObject request);
 
+    @GET("trip/user/{id}")
+    Single<List<Trip>> getAllUserTrips(@Path("id") int userId);
+
+    @GET("trip/public")
+    Single<List<Trip>> getAllPublicTrips();
+
     // =============================================================================================
     // Trip point endpoints
     // =============================================================================================

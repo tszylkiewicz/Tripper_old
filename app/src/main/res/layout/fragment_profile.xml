@@ -197,20 +197,20 @@
         app:layout_constraintGuide_percent="0.2" />
 
     <TextView
-        android:id="@+id/routesNumber"
+        android:id="@+id/tripsCreated"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="4"
         android:gravity="center_horizontal"
         android:inputType="number"
-        android:text="321"
+        android:text="0"
         android:textSize="30sp"
-        app:layout_constraintBottom_toTopOf="@+id/routesText"
+        app:layout_constraintBottom_toTopOf="@+id/tripsCreatedText"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/routesText"
+        android:id="@+id/tripsCreatedText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
@@ -223,21 +223,21 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/publishedNumber"
+        android:id="@+id/tripsPublished"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:ems="4"
         android:gravity="center_horizontal"
         android:inputType="number"
-        android:text="123"
+        android:text="0"
         android:textSize="30sp"
-        app:layout_constraintBottom_toTopOf="@+id/publishedText"
+        app:layout_constraintBottom_toTopOf="@+id/tripsPublishedText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline" />
 
     <TextView
-        android:id="@+id/publishedText"
+        android:id="@+id/tripsPublishedText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"

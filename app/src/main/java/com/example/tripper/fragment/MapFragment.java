@@ -83,8 +83,6 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
 
     private SpeedDialView speedDialView;
 
-    private CompositeDisposable disposables = new CompositeDisposable();
-
     public static MapFragment newInstance() {
         return new MapFragment();
     }
@@ -165,9 +163,9 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
 
         speedDialView = view.findViewById(R.id.speedDial);
         addSpeedDialElement(R.id.fab_properties, R.drawable.ic_properties, R.string.fab_properties);
-        addSpeedDialElement(R.id.fab_clear_map, R.drawable.ic_clear_map, R.string.fab_clear_map);
+        addSpeedDialElement(R.id.fab_clear_markers, R.drawable.ic_clear_map, R.string.fab_clear_map);
+        addSpeedDialElement(R.id.fab_clear_routes, R.drawable.ic_clear_map, R.string.fab_clear_routes);
         addSpeedDialElement(R.id.fab_create_route, R.drawable.ic_play, R.string.fab_create_route);
-        addSpeedDialElement(R.id.fab_save_route, R.drawable.ic_save, R.string.fab_save_route);
 
         final NavController navController = Navigation.findNavController(view);
         speedDialView.setOnActionSelectedListener(speedDialActionItem -> {
@@ -178,17 +176,16 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
                         drawRoads(mapViewModel.calculateRoad(new OSRMRoadManager(context)));
                     }
                     return false;
-                case R.id.fab_clear_map:
+                case R.id.fab_clear_markers:
                     removeAllMarkers();
-                    removeAllRoutes();
-                    return false;
+                    return true;
 
                 case R.id.fab_properties:
                     navController.navigate(R.id.mapSettingsFragment, null);
-                    return false;
-                case R.id.fab_save_route:
-                    navController.navigate(R.id.nav_sign_in, null);
-                    return false;
+                    return true;
+                case R.id.fab_clear_routes:
+                    removeAllRoutes();
+                    return true;
                 default:
                     return false;
             }

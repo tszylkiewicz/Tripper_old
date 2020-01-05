@@ -1,7 +1,7 @@
 <resources>
     <item name="fab_create_route" type="id" />
-    <item name="fab_clear_map" type="id" />
+    <item name="fab_clear_markers" type="id" />
+    <item name="fab_clear_routes" type="id" />
     <item name="fab_properties" type="id" />
     <item name="fab_my_location" type="id" />
-    <item name="fab_save_route" type="id" />
 </resources>
