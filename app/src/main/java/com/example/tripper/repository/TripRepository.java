@@ -48,4 +48,8 @@ public class TripRepository {
     public Single<List<Trip>> getAllPublicTrips() {
         return api.getAllPublicTrips();
     }
+
+    public Single<Trip> update(Trip trip) {
+        return api.updateTrip(trip.getId(), trip);
+    }
 }

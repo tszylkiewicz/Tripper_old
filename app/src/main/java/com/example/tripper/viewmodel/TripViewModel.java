@@ -16,7 +16,6 @@ import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -32,10 +31,13 @@ public class TripViewModel extends ViewModel {
     private PointRepository pointRepository = new PointRepository();
     private TripRepository tripRepository = new TripRepository();
 
+    private Trip currentTrip;
+
     public void savePoints(Polyline polyline) {
 
         if (createdRoutes != null) {
             ArrayList<Marker> points = createdRoutes.get(polyline);
+            double distance = polyline.getDistance();
             System.out.println("MARKER COUNT: " + points.size());
 
             ArrayList<GeoPoint> geoPoints = new ArrayList<>();
@@ -47,15 +49,15 @@ public class TripViewModel extends ViewModel {
             System.out.println("Zapisano trasę");
             MainActivity.getDisposables().add(pointRepository.addPoints(geoPoints).observeOn(mainThread()).subscribeOn(Schedulers.io()).subscribe(user1 -> {
                 System.out.println("ZAPISANO PUNKTY");
-                saveTrip(user1);
+                saveTrip(user1, distance);
             }, Throwable::printStackTrace));
         } else {
             System.out.println("Nie ma tras s TripViewModel");
         }
     }
 
-    public void saveTrip(List<Point> points) {
-        MainActivity.getDisposables().add(tripRepository.createTrip(1, "Test", "Description", 123.412, "car", false).observeOn(mainThread()).subscribeOn(Schedulers.io()).subscribe(user1 -> {
+    public void saveTrip(List<Point> points, double distance) {
+        MainActivity.getDisposables().add(tripRepository.createTrip(1, "Test", "Description", distance, "car", false).observeOn(mainThread()).subscribeOn(Schedulers.io()).subscribe(user1 -> {
             System.out.println("ZAPISANO WYCIECZKE");
             System.out.println(user1.getAllData());
             combineTripWithPoints(user1, points);
@@ -89,5 +91,17 @@ public class TripViewModel extends ViewModel {
 
     public Single<List<Trip>> getAllPublicTrips() {
         return tripRepository.getAllPublicTrips().observeOn(mainThread()).subscribeOn(Schedulers.io());
+    }
+
+    public Trip getCurrentTrip() {
+        return currentTrip;
+    }
+
+    public void setCurrentTrip(Trip currentTrip) {
+        this.currentTrip = currentTrip;
+    }
+
+    public Single<Trip> update(Trip trip) {
+        return tripRepository.update(trip).observeOn(mainThread()).subscribeOn(Schedulers.io());
     }
 }

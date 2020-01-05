@@ -8,6 +8,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,6 +45,8 @@ public class TripsFragment extends Fragment {
     ArrayList<Trip> dataModels;
     private static TripAdapter adapter;
 
+    private NavController navController;
+
     public static TripsFragment newInstance() {
         return new TripsFragment();
     }
@@ -72,7 +76,8 @@ public class TripsFragment extends Fragment {
                 }, Throwable::printStackTrace)
         );
 
-        //displayTrips(dataModels);
+        navController = Navigation.findNavController(view);
+
     }
 
     private void displayTrips(List<Trip> user1) {
@@ -80,13 +85,6 @@ public class TripsFragment extends Fragment {
         dataModels = new ArrayList<>();
         dataModels.addAll(user1);
 
-
-        /*dataModels.add(new Trip(1, 1, "Apple Pie", "Android 1.0", 123.5, "car", 0, 0, false));
-        dataModels.add(new Trip(1, 1, "Apple Pie2", "Android 2.0", 123.5, "car", 0, 0, false));
-        dataModels.add(new Trip(1, 1, "Apple Pie3", "Android 3.0", 123.5, "car", 0, 0, false));
-        dataModels.add(new Trip(1, 1, "Apple Pie4", "Android 4.0", 123.5, "car", 0, 0, false));
-        dataModels.add(new Trip(1, 1, "Apple Pie5", "Android 5.0", 123.5, "car", 0, 0, false));
-*/
         adapter = new TripAdapter(dataModels, getContext());
 
         listView.setAdapter(adapter);
@@ -94,10 +92,10 @@ public class TripsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                Trip dataModel = dataModels.get(position);
+                Trip currentTrip = dataModels.get(position);
+                tripViewModel.setCurrentTrip(currentTrip);
+                navController.navigate(R.id.action_nav_your_trips_to_singleTripFragment, null);
 
-                Snackbar.make(view, dataModel.getName() + "\n" + dataModel.getDescription(), Snackbar.LENGTH_LONG)
-                        .setAction("No action", null).show();
             }
         });
     }

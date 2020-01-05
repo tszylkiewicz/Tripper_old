@@ -54,6 +54,8 @@ public interface ApiService {
     @GET("trip/public")
     Single<List<Trip>> getAllPublicTrips();
 
+    @PUT("trip/{id}")
+    Single<Trip> updateTrip(@Path("id") int tripId, @Body Trip trip);
     // =============================================================================================
     // Trip point endpoints
     // =============================================================================================

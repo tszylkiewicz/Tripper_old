@@ -1,11 +1,6 @@
 package com.example.tripper.model;
 
-import com.example.tripper.model.enums.TransportType;
 import com.google.gson.annotations.SerializedName;
-
-import org.osmdroid.views.overlay.Marker;
-
-import java.util.ArrayList;
 
 public class Trip extends Model {
 
