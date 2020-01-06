@@ -157,6 +157,5 @@ public class SingleTripFragment extends Fragment {
         editText.setFocusable(true);
         editText.setInputType(InputType.TYPE_CLASS_TEXT);
         editText.setBackgroundColor(Color.LTGRAY);
-
     }
 }

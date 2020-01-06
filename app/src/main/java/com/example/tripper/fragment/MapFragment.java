@@ -5,6 +5,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -34,15 +35,19 @@ import android.widget.PopupMenu;
 import com.example.tripper.MainActivity;
 import com.example.tripper.R;
 import com.example.tripper.model.Trip;
+import com.example.tripper.model.User;
 import com.example.tripper.viewmodel.MapViewModel;
 import com.example.tripper.viewmodel.TripViewModel;
+import com.example.tripper.viewmodel.UserViewModel;
 import com.leinardi.android.speeddial.SpeedDialActionItem;
 import com.leinardi.android.speeddial.SpeedDialView;
 
 import org.osmdroid.api.IMapController;
+import org.osmdroid.bonuspack.routing.MapQuestRoadManager;
 import org.osmdroid.bonuspack.routing.OSRMRoadManager;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
+import org.osmdroid.bonuspack.routing.RoadNode;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
@@ -68,11 +73,15 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
 
     private MapViewModel mapViewModel;
     private TripViewModel tripViewModel;
+    private UserViewModel userViewModel;
 
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 0;
     private MapView map;
     private Context context;
     private IMapController mapController;
+    private NavController navController;
+
+    private ImageButton zoomIn;
 
     private LocationManager locationManager;
     private Location location = null;
@@ -96,11 +105,12 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mapViewModel = ViewModelProviders.of(getActivity()).get(MapViewModel.class);
-        tripViewModel = ViewModelProviders.of(getActivity()).get(TripViewModel.class);
-        mapViewModel.getDays().observe(getActivity(), msg -> System.out.println("Zmieniono z mapa na: " + msg));
+        userViewModel = ViewModelProviders.of(requireActivity()).get(UserViewModel.class);
+        mapViewModel = ViewModelProviders.of(requireActivity()).get(MapViewModel.class);
+        tripViewModel = ViewModelProviders.of(requireActivity()).get(TripViewModel.class);
+        mapViewModel.getDays().observe(requireActivity(), msg -> System.out.println("Zmieniono z mapa na: " + msg));
 
-        mapViewModel.getCentroids().observe(getActivity(), centroids -> {
+        mapViewModel.getCentroids().observe(requireActivity(), centroids -> {
             drawCentroids(centroids);
         });
     }
@@ -131,7 +141,7 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
         context = this.getContext();
 
         map = view.findViewById(R.id.mapview);
-        ImageButton zoomIn = view.findViewById(R.id.zoom_in);
+        zoomIn = view.findViewById(R.id.zoom_in);
         ImageButton zoomOut = view.findViewById(R.id.zoom_out);
 
         MapEventsOverlay OverlayEvents = new MapEventsOverlay(this);
@@ -155,11 +165,13 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
         map.getOverlays().add(myLocationNewOverlay);
         map.getOverlays().add(compassOverlay);
 
-        map.setTileSource(TileSourceFactory.MAPNIK);
+        map.setTileSource(mapViewModel.getTileSource());
+
         map.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.NEVER);
         mapController = map.getController();
-        mapController.setZoom(17.0d);
-        mapController.setCenter(new GeoPoint(51.13, 19.63));
+        mapController.setZoom(mapViewModel.getCurrentZoomLevel());
+        mapController.setCenter(mapViewModel.getCurrentCenter());
+
 
         speedDialView = view.findViewById(R.id.speedDial);
         addSpeedDialElement(R.id.fab_properties, R.drawable.ic_properties, R.string.fab_properties);
@@ -167,7 +179,7 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
         addSpeedDialElement(R.id.fab_clear_routes, R.drawable.ic_clear_map, R.string.fab_clear_routes);
         addSpeedDialElement(R.id.fab_create_route, R.drawable.ic_play, R.string.fab_create_route);
 
-        final NavController navController = Navigation.findNavController(view);
+        navController = Navigation.findNavController(view);
         speedDialView.setOnActionSelectedListener(speedDialActionItem -> {
             switch (speedDialActionItem.getId()) {
                 case R.id.fab_create_route:
@@ -271,27 +283,33 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
         compassOverlay.disableCompass();
         myLocationNewOverlay.disableFollowLocation();
         myLocationNewOverlay.disableMyLocation();
+
+        mapViewModel.setCurrentZoomLevel(map.getZoomLevelDouble());
+        mapViewModel.setCurrentCenter(new GeoPoint(map.getMapCenter().getLatitude(), map.getMapCenter().getLongitude()));
     }
 
-    public void removeAllMarkers() {
+    private void removeAllMarkers() {
         map.getOverlays().removeAll(mapViewModel.getMarkers());
         mapViewModel.removeAllMarkers();
     }
 
-    public void removeAllRoutes() {
-        map.getOverlays().removeAll(mapViewModel.getRoutes());
+    private void removeAllRoutes() {
+        map.getOverlays().removeAll(tripViewModel.getCreatedRoutes().keySet());
+        //map.getOverlays().removeAll(mapViewModel.getRoutes());
         mapViewModel.removeAllRoutes();
     }
 
-    public void removeMarker(Marker marker) {
+    private void removeMarker(Marker marker) {
         mapViewModel.removeMarker(marker);
         map.getOverlays().remove(marker);
     }
 
-    public void drawRoads(ArrayList<ArrayList<Marker>> markers) {
+    private void drawRoads(ArrayList<ArrayList<Marker>> markers) {
         Random rnd = new Random();
         ArrayList<Polyline> routes = new ArrayList<>();
-        RoadManager roadManager = new OSRMRoadManager(context);
+        //RoadManager roadManager = new OSRMRoadManager(context);
+        RoadManager roadManager = new MapQuestRoadManager("QJmEiN5bbsOvOAv4MKvuuuEgepqLOqec");
+        roadManager.addRequestOption("routeType=" + mapViewModel.getNavigationType().toLowerCase());
 
         for (ArrayList<Marker> markerList : markers) {
             ArrayList<GeoPoint> wps = new ArrayList<>();
@@ -300,31 +318,46 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
             ) {
                 wps.add(marker.getPosition());
             }
-            Road[] roads = roadManager.getRoads(wps);
+            Road singleRoad = roadManager.getRoad(wps);
 
-            for (Road singleRoad : roads
-            ) {
-                if (singleRoad.mStatus != Road.STATUS_OK) {
-                    Log.d("Road Status", "" + singleRoad.mStatus);
-                } else {
-                    Polyline roadOverlay = RoadManager.buildRoadOverlay(singleRoad);
-                    roadOverlay.setColor(Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)));
-                    roadOverlay.setWidth(8);
-                    routes.add(roadOverlay);
-                    tripViewModel.addCreatedRoute(roadOverlay, markerList);
-                }
+            if (singleRoad.mStatus != Road.STATUS_OK) {
+                Log.d("Road Status", "" + singleRoad.mStatus);
+            } else {
+                Polyline roadOverlay = RoadManager.buildRoadOverlay(singleRoad);
+                roadOverlay.setColor(Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)));
+                roadOverlay.setWidth(8);
+                routes.add(roadOverlay);
+                tripViewModel.addCreatedRoute(roadOverlay, markerList);
+            }
+
+            Drawable nodeIcon = getResources().getDrawable(R.drawable.ic_play);
+            for (int i = 0; i < singleRoad.mNodes.size(); i++) {
+                RoadNode node = singleRoad.mNodes.get(i);
+                Marker nodeMarker = new Marker(map);
+                nodeMarker.setPosition(node.mLocation);
+                nodeMarker.setIcon(nodeIcon);
+                nodeMarker.setTitle("Step " + i);
+                nodeMarker.setSnippet(node.mInstructions);
+                nodeMarker.setSubDescription(Road.getLengthDurationText(context, node.mLength, node.mDuration));
+                Drawable icon = getResources().getDrawable(R.drawable.ic_menu_explore);
+                nodeMarker.setImage(icon);
+                map.getOverlays().add(nodeMarker);
             }
         }
         for (Polyline road : routes
         ) {
             road.setOnClickListener((polyline, mapView, eventPos) -> {
 
-                PopupMenu popupMenu = new PopupMenu(getActivity(), map);
+                PopupMenu popupMenu = new PopupMenu(getActivity(), zoomIn);
 
                 popupMenu.setOnMenuItemClickListener(menuItem -> {
                     switch (menuItem.getItemId()) {
                         case R.id.save:
-                            tripViewModel.savePoints(polyline);
+                            if (userViewModel.getCurrentUser() == null) {
+                                navController.navigate(R.id.nav_sign_in);
+                            } else {
+                                tripViewModel.savePoints(polyline, userViewModel.getCurrentUser().getId());
+                            }
                             return true;
                         case R.id.remove:
                             mapViewModel.removeRoute(polyline);
@@ -345,14 +378,14 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
         map.getOverlays().addAll(routes);
     }
 
-    public void zoomIn() {
+    private void zoomIn() {
         if (location != null) {
             GeoPoint myPosition = new GeoPoint(location.getLatitude(), location.getLongitude());
             map.getController().animateTo(myPosition);
         }
     }
 
-    public void zoomOut() {
+    private void zoomOut() {
         if (map.canZoomOut()) {
             mapController.setZoom(map.getZoomLevelDouble() - 0.5d);
         }

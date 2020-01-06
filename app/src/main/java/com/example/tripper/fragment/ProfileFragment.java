@@ -4,13 +4,14 @@ import androidx.annotation.RequiresApi;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -23,16 +24,12 @@ import android.widget.TextView;
 import com.example.tripper.MainActivity;
 import com.example.tripper.model.Trip;
 import com.example.tripper.model.User;
-import com.example.tripper.viewmodel.MapViewModel;
-import com.example.tripper.viewmodel.ProfileViewModel;
 import com.example.tripper.R;
 import com.example.tripper.viewmodel.TripViewModel;
 import com.example.tripper.viewmodel.UserViewModel;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import io.reactivex.disposables.CompositeDisposable;
 
 import static android.text.InputType.TYPE_NULL;
 
@@ -77,53 +74,60 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        user = userViewModel.getCurrentUser();
-        System.out.println(user.getFormattedInfo());
+        NavController navController = Navigation.findNavController(view);
 
-        username = view.findViewById(R.id.username);
-        firstName = view.findViewById(R.id.firstName);
-        lastName = view.findViewById(R.id.lastName);
+        if (userViewModel.getCurrentUser() == null) {
+            navController.navigate(R.id.nav_sign_in);
+        } else {
 
-        email = view.findViewById(R.id.email);
-        tripsCreated = view.findViewById(R.id.tripsCreated);
-        tripsPublished = view.findViewById(R.id.tripsPublished);
+            user = userViewModel.getCurrentUser();
+            System.out.println(user.getFormattedInfo());
 
-        edit = view.findViewById(R.id.edit);
-        save = view.findViewById(R.id.save);
-        cancel = view.findViewById(R.id.cancel);
+            username = view.findViewById(R.id.username);
+            firstName = view.findViewById(R.id.firstName);
+            lastName = view.findViewById(R.id.lastName);
 
-        disableEdition();
-        setDefaultValues();
+            email = view.findViewById(R.id.email);
+            tripsCreated = view.findViewById(R.id.tripsCreated);
+            tripsPublished = view.findViewById(R.id.tripsPublished);
+
+            edit = view.findViewById(R.id.edit);
+            save = view.findViewById(R.id.save);
+            cancel = view.findViewById(R.id.cancel);
+
+            disableEdition();
+            setDefaultValues();
 
 
-        MainActivity.getDisposables().add(tripViewModel.getAllUserTrips(user.getId()).subscribe(user1 -> {
-                    System.out.println("POBRANO WSZYSTKIE WYCIECZKI");
-                    DisplayTripsStats(user1);
-                }, Throwable::printStackTrace)
-        );
-
-
-        edit.setOnClickListener(view1 -> enableEdition());
-
-        save.setOnClickListener(view1 -> {
-            user.setUsername(username.getText().toString());
-            user.setFirstName(firstName.getText().toString());
-            user.setLastName(lastName.getText().toString());
-
-            MainActivity.getDisposables().add(userViewModel.update(user)
-                    .subscribe(user1 -> {
-                        System.out.println("NEW USER DATA");
-                        System.out.println(user1.getFormattedInfo());
+            MainActivity.getDisposables().add(tripViewModel.getAllUserTrips(user.getId()).subscribe(user1 -> {
+                        System.out.println("POBRANO WSZYSTKIE WYCIECZKI");
+                        DisplayTripsStats(user1);
                     }, Throwable::printStackTrace)
             );
-            userViewModel.setCurrentUser(user);
-            disableEdition();
-        });
 
-        cancel.setOnClickListener(view1 -> {
-            setDefaultValues();
-            disableEdition();
-        });
+
+            edit.setOnClickListener(view1 -> enableEdition());
+
+            save.setOnClickListener(view1 -> {
+                user.setUsername(username.getText().toString());
+                user.setFirstName(firstName.getText().toString());
+                user.setLastName(lastName.getText().toString());
+
+                MainActivity.getDisposables().add(userViewModel.update(user)
+                        .subscribe(user1 -> {
+                            System.out.println("NEW USER DATA");
+                            System.out.println(user1.getFormattedInfo());
+                        }, Throwable::printStackTrace)
+                );
+                userViewModel.setCurrentUser(user);
+                disableEdition();
+            });
+
+            cancel.setOnClickListener(view1 -> {
+                setDefaultValues();
+                disableEdition();
+            });
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)

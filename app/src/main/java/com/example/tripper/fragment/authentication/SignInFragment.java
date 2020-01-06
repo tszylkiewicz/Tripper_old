@@ -41,6 +41,8 @@ public class SignInFragment extends Fragment {
     private Button signUp;
     private TextView title;
 
+    private Button skip;
+
     private TextWatcher textWatcher;
     private NavController navController;
 
@@ -70,7 +72,7 @@ public class SignInFragment extends Fragment {
         signIn = view.findViewById(R.id.signIn);
         signIn.setEnabled(false);
         signUp = view.findViewById(R.id.signUp);
-
+skip = view.findViewById(R.id.skip);
         title = view.findViewById(R.id.title);
 
         textWatcher = new TextWatcher() {
@@ -108,6 +110,9 @@ public class SignInFragment extends Fragment {
 
         signUp.setOnClickListener(view1 -> {
             navController.navigate(R.id.action_signInFragment_to_signUpFragment);
+        });
+        skip.setOnClickListener(view1 -> {
+            navController.navigate(R.id.action_signInFragment_to_nav_map);
         });
 
     }

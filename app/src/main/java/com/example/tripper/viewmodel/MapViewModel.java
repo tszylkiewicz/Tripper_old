@@ -16,6 +16,8 @@ import com.example.tripper.model.enums.TransportType;
 
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
+import org.osmdroid.tileprovider.tilesource.ITileSource;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
@@ -31,6 +33,9 @@ public class MapViewModel extends ViewModel {
     private MutableLiveData<Integer> days;
     private MutableLiveData<TransportType> transportType;
 
+    private ITileSource tileSource;
+    private String navigationType;
+
     private MutableLiveData<ArrayList<Marker>> markersLiveData;
     private MutableLiveData<ArrayList<Polyline>> routesLiveData;
 
@@ -39,6 +44,13 @@ public class MapViewModel extends ViewModel {
     private ArrayList<Marker> markers;
     private ArrayList<Polyline> routes;
     private Road[] roads;
+
+
+    private double currentZoomLevel = 15d;
+    private GeoPoint currentCenter = new GeoPoint(51.13, 19.63);
+
+    private ArrayList<GeoPoint> currentPoints;
+
 
     public ArrayList<Marker> getMarkers() {
         if (markers == null) {
@@ -571,5 +583,43 @@ public class MapViewModel extends ViewModel {
         }
         routes.remove(polyline);
         System.out.println("Route removed");
+    }
+
+    public ITileSource getTileSource() {
+        if (tileSource == null) {
+            tileSource = TileSourceFactory.MAPNIK;
+        }
+        return tileSource;
+    }
+
+    public void setTileSource(ITileSource tileSource) {
+        this.tileSource = tileSource;
+    }
+
+    public String getNavigationType() {
+        if (navigationType == null) {
+            navigationType = "Fastest";
+        }
+        return navigationType;
+    }
+
+    public void setNavigationType(String navigationType) {
+        this.navigationType = navigationType;
+    }
+
+    public double getCurrentZoomLevel() {
+        return currentZoomLevel;
+    }
+
+    public void setCurrentZoomLevel(double currentZoomLevel) {
+        this.currentZoomLevel = currentZoomLevel;
+    }
+
+    public GeoPoint getCurrentCenter() {
+        return currentCenter;
+    }
+
+    public void setCurrentCenter(GeoPoint currentCenter) {
+        this.currentCenter = currentCenter;
     }
 }

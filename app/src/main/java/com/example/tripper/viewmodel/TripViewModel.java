@@ -33,7 +33,7 @@ public class TripViewModel extends ViewModel {
 
     private Trip currentTrip;
 
-    public void savePoints(Polyline polyline) {
+    public void savePoints(Polyline polyline, int userId) {
 
         if (createdRoutes != null) {
             ArrayList<Marker> points = createdRoutes.get(polyline);
@@ -49,15 +49,15 @@ public class TripViewModel extends ViewModel {
             System.out.println("Zapisano trasę");
             MainActivity.getDisposables().add(pointRepository.addPoints(geoPoints).observeOn(mainThread()).subscribeOn(Schedulers.io()).subscribe(user1 -> {
                 System.out.println("ZAPISANO PUNKTY");
-                saveTrip(user1, distance);
+                saveTrip(user1, userId, "Name", "Description", distance, "car");
             }, Throwable::printStackTrace));
         } else {
             System.out.println("Nie ma tras s TripViewModel");
         }
     }
 
-    public void saveTrip(List<Point> points, double distance) {
-        MainActivity.getDisposables().add(tripRepository.createTrip(1, "Test", "Description", distance, "car", false).observeOn(mainThread()).subscribeOn(Schedulers.io()).subscribe(user1 -> {
+    public void saveTrip(List<Point> points, int userId, String name, String description, double distance, String transportType) {
+        MainActivity.getDisposables().add(tripRepository.createTrip(userId, name, description, distance, transportType, false).observeOn(mainThread()).subscribeOn(Schedulers.io()).subscribe(user1 -> {
             System.out.println("ZAPISANO WYCIECZKE");
             System.out.println(user1.getAllData());
             combineTripWithPoints(user1, points);
@@ -103,5 +103,12 @@ public class TripViewModel extends ViewModel {
 
     public Single<Trip> update(Trip trip) {
         return tripRepository.update(trip).observeOn(mainThread()).subscribeOn(Schedulers.io());
+    }
+
+    public HashMap<Polyline, ArrayList<Marker>> getCreatedRoutes() {
+        if (createdRoutes == null) {
+            createdRoutes = new HashMap<>();
+        }
+        return createdRoutes;
     }
 }

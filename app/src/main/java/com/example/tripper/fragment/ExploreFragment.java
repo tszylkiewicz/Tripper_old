@@ -1,24 +1,21 @@
 package com.example.tripper.fragment;
 
-import androidx.lifecycle.ViewModelProviders;
-
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
+
 import com.example.tripper.MainActivity;
+import com.example.tripper.R;
 import com.example.tripper.TripAdapter;
 import com.example.tripper.model.Trip;
-import com.example.tripper.viewmodel.ExploreViewModel;
-import com.example.tripper.R;
 import com.example.tripper.viewmodel.TripViewModel;
 import com.example.tripper.viewmodel.UserViewModel;
 import com.google.android.material.snackbar.Snackbar;

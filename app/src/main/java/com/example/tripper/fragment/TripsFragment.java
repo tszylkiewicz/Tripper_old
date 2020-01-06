@@ -69,14 +69,17 @@ public class TripsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         listView = view.findViewById(R.id.trips_list);
-
-        MainActivity.getDisposables().add(tripViewModel.getAllUserTrips(userViewModel.getCurrentUser().getId()).subscribe(user1 -> {
-                    System.out.println("POBRANO WSZYSTKIE WYCIECZKI");
-                    displayTrips(user1);
-                }, Throwable::printStackTrace)
-        );
-
         navController = Navigation.findNavController(view);
+
+        if (userViewModel.getCurrentUser() == null) {
+            navController.navigate(R.id.nav_sign_in);
+        } else {
+            MainActivity.getDisposables().add(tripViewModel.getAllUserTrips(userViewModel.getCurrentUser().getId()).subscribe(user1 -> {
+                        System.out.println("POBRANO WSZYSTKIE WYCIECZKI");
+                        displayTrips(user1);
+                    }, Throwable::printStackTrace)
+            );
+        }
 
     }
 
