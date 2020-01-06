@@ -42,6 +42,9 @@ public interface ApiService {
     @POST("point")
     Single<List<Point>> addPoints(@Body List<JsonObject> request);
 
+    @GET("point/trip/{id}")
+    Single<List<Point>> getAllTripPoints(@Path("id") int tripId);
+
     // =============================================================================================
     // Trip endpoints
     // =============================================================================================
@@ -56,9 +59,4 @@ public interface ApiService {
 
     @PUT("trip/{id}")
     Single<Trip> updateTrip(@Path("id") int tripId, @Body Trip trip);
-    // =============================================================================================
-    // Trip point endpoints
-    // =============================================================================================
-    @POST("trip-point")
-    Single<List<TripPoint>> addTripPoints(@Body List<JsonObject> request);
 }

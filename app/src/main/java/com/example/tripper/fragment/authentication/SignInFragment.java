@@ -97,7 +97,7 @@ skip = view.findViewById(R.id.skip);
 
         //CHEATING
         email.getEditText().setText("test@wp.pl");
-        password.getEditText().setText("secret");
+        password.getEditText().setText("Secret1!");
 
         navController = Navigation.findNavController(view);
         signIn.setOnClickListener(view1 -> {

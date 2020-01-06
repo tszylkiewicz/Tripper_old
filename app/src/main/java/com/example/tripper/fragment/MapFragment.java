@@ -111,7 +111,7 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
         mapViewModel.getDays().observe(requireActivity(), msg -> System.out.println("Zmieniono z mapa na: " + msg));
 
         mapViewModel.getCentroids().observe(requireActivity(), centroids -> {
-            drawCentroids(centroids);
+            //drawCentroids(centroids);
         });
     }
 
@@ -126,7 +126,6 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
                 return false;
             });
             map.getOverlays().add(newMarker);
-
         }
     }
 
@@ -202,6 +201,15 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
                     return false;
             }
         });
+
+        removeAllMarkers();
+        ArrayList<GeoPoint> testPunkty = mapViewModel.getCurrentPoints();
+        if (testPunkty.size() > 0) {
+            for (GeoPoint testPoint : testPunkty) {
+                longPressHelper(testPoint);
+            }
+            map.getController().animateTo(testPunkty.get(0));
+        }
     }
 
     @Override
@@ -356,7 +364,8 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
                             if (userViewModel.getCurrentUser() == null) {
                                 navController.navigate(R.id.nav_sign_in);
                             } else {
-                                tripViewModel.savePoints(polyline, userViewModel.getCurrentUser().getId());
+                                tripViewModel.saveTrip(polyline, userViewModel.getCurrentUser().getId(), "Name", "Description", "car");
+                                //tripViewModel.savePoints(polyline, userViewModel.getCurrentUser().getId());
                             }
                             return true;
                         case R.id.remove:

@@ -12,6 +12,7 @@ import com.example.tripper.model.CMeans;
 import com.example.tripper.model.Centroid;
 import com.example.tripper.model.FuzzyCMeans;
 import com.example.tripper.model.HeldKarpDouble;
+import com.example.tripper.model.Point;
 import com.example.tripper.model.enums.TransportType;
 
 import org.osmdroid.bonuspack.routing.Road;
@@ -621,5 +622,19 @@ public class MapViewModel extends ViewModel {
 
     public void setCurrentCenter(GeoPoint currentCenter) {
         this.currentCenter = currentCenter;
+    }
+
+    public void setCurrentPoints(List<Point> points) {
+        currentPoints = new ArrayList<>();
+        for (Point point : points) {
+            currentPoints.add(new GeoPoint(point.getLatitude(), point.getLongitude()));
+        }
+    }
+
+    public ArrayList<GeoPoint> getCurrentPoints(){
+        if(currentPoints == null){
+            currentPoints = new ArrayList<>();
+        }
+        return currentPoints;
     }
 }

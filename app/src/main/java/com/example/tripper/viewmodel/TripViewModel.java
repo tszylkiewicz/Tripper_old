@@ -33,7 +33,7 @@ public class TripViewModel extends ViewModel {
 
     private Trip currentTrip;
 
-    public void savePoints(Polyline polyline, int userId) {
+    public void savePoints(Polyline polyline, int tripId) {
 
         if (createdRoutes != null) {
             ArrayList<Marker> points = createdRoutes.get(polyline);
@@ -47,34 +47,20 @@ public class TripViewModel extends ViewModel {
                 System.out.println(point.getPosition());
             }
             System.out.println("Zapisano trasę");
-            MainActivity.getDisposables().add(pointRepository.addPoints(geoPoints).observeOn(mainThread()).subscribeOn(Schedulers.io()).subscribe(user1 -> {
-                System.out.println("ZAPISANO PUNKTY");
-                saveTrip(user1, userId, "Name", "Description", distance, "car");
+            MainActivity.getDisposables().add(pointRepository.addPoints(tripId, geoPoints).observeOn(mainThread()).subscribeOn(Schedulers.io()).subscribe(user1 -> {
+                System.out.println("POINTS SAVED SUCCESSFULLY");
+                //saveTrip(user1, userId, "Name", "Description", distance, "car");
             }, Throwable::printStackTrace));
         } else {
             System.out.println("Nie ma tras s TripViewModel");
         }
     }
 
-    public void saveTrip(List<Point> points, int userId, String name, String description, double distance, String transportType) {
-        MainActivity.getDisposables().add(tripRepository.createTrip(userId, name, description, distance, transportType, false).observeOn(mainThread()).subscribeOn(Schedulers.io()).subscribe(user1 -> {
-            System.out.println("ZAPISANO WYCIECZKE");
+    public void saveTrip(Polyline polyline, int userId, String name, String description, String transportType) {
+        MainActivity.getDisposables().add(tripRepository.createTrip(userId, name, description, polyline.getDistance(), transportType, 0).observeOn(mainThread()).subscribeOn(Schedulers.io()).subscribe(user1 -> {
+            System.out.println("TRIP SAVED SUCCESSFULLY");
             System.out.println(user1.getAllData());
-            combineTripWithPoints(user1, points);
-        }, Throwable::printStackTrace));
-    }
-
-    private void combineTripWithPoints(Trip trip, List<Point> points) {
-        System.out.println("COMBINE TRIP WITH POINTS");
-        int tripId = trip.getId();
-
-        ArrayList<Pair<Integer, Integer>> pairs = new ArrayList<>();
-
-        for (Point point : points) {
-            pairs.add(new Pair<>(tripId, point.getId()));
-        }
-        MainActivity.getDisposables().add(tripRepository.addTripPoints(pairs).observeOn(mainThread()).subscribeOn(Schedulers.io()).subscribe(user1 -> {
-            System.out.println("ZAPISANO POLACZENIA");
+            savePoints(polyline, user1.getId());
         }, Throwable::printStackTrace));
     }
 
@@ -111,4 +97,9 @@ public class TripViewModel extends ViewModel {
         }
         return createdRoutes;
     }
+
+    public Single<List<Point>> getAllTripPoints(int tripId) {
+        return pointRepository.getAllTripPoints(tripId).observeOn(mainThread()).subscribeOn(Schedulers.io());
+    }
+
 }

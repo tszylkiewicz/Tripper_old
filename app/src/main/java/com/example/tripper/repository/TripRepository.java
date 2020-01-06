@@ -15,7 +15,7 @@ public class TripRepository {
 
     private ApiService api = HttpClient.getApiService();
 
-    public Single<Trip> createTrip(int userId, String name, String description, double distance, String transportType, boolean shared) {
+    public Single<Trip> createTrip(int userId, String name, String description, double distance, String transportType, int shared) {
         JsonObject request = new JsonObject();
         request.addProperty("user_id", userId);
         request.addProperty("name", name);
@@ -26,19 +26,6 @@ public class TripRepository {
         request.addProperty("rating_count", 0);
         request.addProperty("shared", shared);
         return api.createTrip(request);
-    }
-
-    public Single<List<TripPoint>> addTripPoints(ArrayList<Pair<Integer, Integer>> pairs) {
-
-        List<JsonObject> request = new ArrayList<>();
-
-        for (Pair<Integer, Integer> pair : pairs) {
-            JsonObject pointRequest = new JsonObject();
-            pointRequest.addProperty("trip_id", pair.first);
-            pointRequest.addProperty("point_id", pair.second);
-            request.add(pointRequest);
-        }
-        return api.addTripPoints(request);
     }
 
     public Single<List<Trip>> getAllUserTrips(int userId) {
