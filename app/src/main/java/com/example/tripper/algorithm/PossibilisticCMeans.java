@@ -1,7 +1,4 @@
-package com.example.tripper.model;
-
-import com.example.tripper.model.CMeans;
-import com.example.tripper.model.Centroid;
+package com.example.tripper.algorithm;
 
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.overlay.Marker;
@@ -10,7 +7,7 @@ import java.util.ArrayList;
 
 public class PossibilisticCMeans extends CMeans {
 
-    public PossibilisticCMeans(int c, double epsilon, double m, ArrayList<Marker> markers) {
+    public PossibilisticCMeans(int c, double epsilon, double m, ArrayList<GeoPoint> markers) {
         super(c, epsilon, m, markers);
     }
 
@@ -35,8 +32,8 @@ public class PossibilisticCMeans extends CMeans {
                 double numeratorLon = 0;
                 double denominator = 0;
                 for (int j = 0; j < n; j++) {
-                    numeratorLat += Math.pow(u1.get(j).get(i), m) * markers.get(j).getPosition().getLatitude();
-                    numeratorLon += Math.pow(u1.get(j).get(i), m) * markers.get(j).getPosition().getLongitude();
+                    numeratorLat += Math.pow(u1.get(j).get(i), m) * markers.get(j).getLatitude();
+                    numeratorLon += Math.pow(u1.get(j).get(i), m) * markers.get(j).getLongitude();
                     denominator += Math.pow(u1.get(j).get(i), m);
                 }
                 centroids.get(i).position = new GeoPoint(numeratorLat / denominator, numeratorLon / denominator);
@@ -47,14 +44,14 @@ public class PossibilisticCMeans extends CMeans {
                 double denominator = 0;
                 double ni;
                 for (int j = 0; j < n; j++) {
-                    numerator += Math.pow(u1.get(j).get(i), m) * Math.pow(centroids.get(i).position.distanceToAsDouble(markers.get(j).getPosition()), 2);
+                    numerator += Math.pow(u1.get(j).get(i), m) * Math.pow(centroids.get(i).position.distanceToAsDouble(markers.get(j)), 2);
                     denominator += Math.pow(u1.get(j).get(i), m);
                 }
 
                 ni = numerator / denominator;
 
                 for (int j = 0; j < n; j++) {
-                    double result = centroids.get(i).position.distanceToAsDouble(markers.get(j).getPosition());
+                    double result = centroids.get(i).position.distanceToAsDouble(markers.get(j));
                     /*result = Math.pow(result, 2);
                     result = result / ni;
                     result = Math.pow(result, 1 / m - 1);
@@ -68,12 +65,12 @@ public class PossibilisticCMeans extends CMeans {
                     u1.get(j).set(i, 1 / result);*/
 
                     //Analiza skupień - Wierzchoń, Kłopotek
-                    /*result = Math.pow(result, 2);
+                    result = Math.pow(result, 2);
                     result = result / ni;
                     result = 1d + result;
                     double test = 1 / (m - 1);
                     result = Math.pow(result, test);
-                    u1.get(j).set(i, result);*/
+                    u1.get(j).set(i, result);
 
                     //Metody sztucznej inteligencji - Rutkowski
                     /*result = result / ni;
@@ -84,13 +81,13 @@ public class PossibilisticCMeans extends CMeans {
                     u1.get(j).set(i, result);*/
 
                     //Najczęściej w artykułach się pojawia ten wzór ale nie działa
-                    result = Math.pow(result, 2);
+                    /*result = Math.pow(result, 2);
                     result = result / ni;
                     double test = 1d / (m - 1d);
                     result = Math.pow(result, test);
                     result = 1d + result;
                     result = 1d / result;
-                    u1.get(j).set(i, result);
+                    u1.get(j).set(i, result);*/
                 }
             }
 

@@ -2,13 +2,11 @@ package com.example.tripper.repository;
 
 import com.example.tripper.model.Point;
 import com.example.tripper.model.Trip;
-import com.example.tripper.model.TripPoint;
 import com.example.tripper.model.User;
 import com.google.gson.JsonObject;
 
 import java.util.List;
 
-import io.reactivex.Flowable;
 import io.reactivex.Single;
 import retrofit2.http.Body;
 import retrofit2.http.GET;

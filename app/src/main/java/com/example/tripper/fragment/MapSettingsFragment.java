@@ -1,6 +1,5 @@
 package com.example.tripper.fragment;
 
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.os.Bundle;
@@ -8,23 +7,16 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
-import android.widget.Toast;
 
-import com.example.tripper.MapFragmentPresenter;
 import com.example.tripper.R;
-import com.example.tripper.model.enums.TransportType;
 import com.example.tripper.viewmodel.MapViewModel;
 
 import org.osmdroid.tileprovider.tilesource.ITileSource;
@@ -92,6 +84,7 @@ public class MapSettingsFragment extends Fragment {
 
         transportType.setAdapter(new ArrayAdapter<>(requireActivity(), android.R.layout.simple_spinner_dropdown_item, navigationType));
         transportType.setSelection(navigationType.indexOf(mapViewModel.getNavigationType()));
+
 
         transportType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override

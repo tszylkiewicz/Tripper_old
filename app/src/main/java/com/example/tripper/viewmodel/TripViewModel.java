@@ -1,8 +1,5 @@
 package com.example.tripper.viewmodel;
 
-import android.media.browse.MediaBrowser;
-import android.util.Pair;
-
 import androidx.lifecycle.ViewModel;
 
 import com.example.tripper.MainActivity;
@@ -12,7 +9,6 @@ import com.example.tripper.repository.PointRepository;
 import com.example.tripper.repository.TripRepository;
 
 import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
 import java.util.ArrayList;
@@ -26,28 +22,22 @@ import static io.reactivex.android.schedulers.AndroidSchedulers.mainThread;
 
 public class TripViewModel extends ViewModel {
 
-    private HashMap<Polyline, ArrayList<Marker>> createdRoutes;
+    private HashMap<Polyline, ArrayList<GeoPoint>> createdRoutes;
 
     private PointRepository pointRepository = new PointRepository();
     private TripRepository tripRepository = new TripRepository();
 
     private Trip currentTrip;
 
-    public void savePoints(Polyline polyline, int tripId) {
+    private void savePoints(Polyline polyline, int tripId) {
 
         if (createdRoutes != null) {
-            ArrayList<Marker> points = createdRoutes.get(polyline);
+            ArrayList<GeoPoint> points = createdRoutes.get(polyline);
             double distance = polyline.getDistance();
             System.out.println("MARKER COUNT: " + points.size());
 
-            ArrayList<GeoPoint> geoPoints = new ArrayList<>();
-            for (Marker point : points
-            ) {
-                geoPoints.add(point.getPosition());
-                System.out.println(point.getPosition());
-            }
             System.out.println("Zapisano trasę");
-            MainActivity.getDisposables().add(pointRepository.addPoints(tripId, geoPoints).observeOn(mainThread()).subscribeOn(Schedulers.io()).subscribe(user1 -> {
+            MainActivity.getDisposables().add(pointRepository.addPoints(tripId, points).observeOn(mainThread()).subscribeOn(Schedulers.io()).subscribe(user1 -> {
                 System.out.println("POINTS SAVED SUCCESSFULLY");
                 //saveTrip(user1, userId, "Name", "Description", distance, "car");
             }, Throwable::printStackTrace));
@@ -64,7 +54,7 @@ public class TripViewModel extends ViewModel {
         }, Throwable::printStackTrace));
     }
 
-    public void addCreatedRoute(Polyline roadOverlay, ArrayList<Marker> markerList) {
+    public void addCreatedRoute(Polyline roadOverlay, ArrayList<GeoPoint> markerList) {
         if (createdRoutes == null) {
             createdRoutes = new HashMap<>();
         }
@@ -91,7 +81,7 @@ public class TripViewModel extends ViewModel {
         return tripRepository.update(trip).observeOn(mainThread()).subscribeOn(Schedulers.io());
     }
 
-    public HashMap<Polyline, ArrayList<Marker>> getCreatedRoutes() {
+    public HashMap<Polyline, ArrayList<GeoPoint>> getCreatedRoutes() {
         if (createdRoutes == null) {
             createdRoutes = new HashMap<>();
         }

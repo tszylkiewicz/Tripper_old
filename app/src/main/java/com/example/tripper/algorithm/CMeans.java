@@ -1,5 +1,6 @@
-package com.example.tripper.model;
+package com.example.tripper.algorithm;
 
+import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.overlay.Marker;
 
 import java.io.ByteArrayInputStream;
@@ -14,23 +15,23 @@ import java.util.Vector;
 public abstract class CMeans {
 
     public int n;               //markers size
-    public int c;               //centroids size
-    public double epsilon;      //stop condition
-    public double m;            //degree of fuzziness
-    public int maxIteration;   //max iteration
+    int c;                      //centroids size
+    double epsilon;             //stop condition
+    double m;                   //degree of fuzziness
+    int maxIteration;           //max iteration
 
-    public Vector<Vector<Double>> u0;
-    public Vector<Vector<Double>> u1;
+    Vector<Vector<Double>> u0;
+    Vector<Vector<Double>> u1;
 
-    public ArrayList<Marker> markers;
-    public ArrayList<Centroid> centroids;
+    ArrayList<GeoPoint> markers;
+    ArrayList<Centroid> centroids;
 
-    public CMeans(int c, double epsilon, double m, ArrayList<Marker> markers) {
+    CMeans(int c, double epsilon, double m, ArrayList<GeoPoint> markers) {
         this.n = markers.size();
         this.c = c;
         this.epsilon = epsilon;
         this.m = m;
-        this.maxIteration = 100000;
+        this.maxIteration = 10000;
         this.markers = markers;
 
         this.u0 = new Vector<>();
@@ -40,10 +41,13 @@ public abstract class CMeans {
 
     public abstract ArrayList<Centroid> calculate();
 
-    public void initializeCentroids() {
+    void initializeCentroids() {
         int temp = n / c;
+        System.out.println(n);
+        System.out.println(c);
+        System.out.println(temp);
         for (int i = 0; i < c; i++) {
-            centroids.add(new Centroid(markers.get(i * temp).getPosition()));
+            centroids.add(new Centroid(markers.get(i * temp)));
         }
     }
 
@@ -63,7 +67,7 @@ public abstract class CMeans {
         }
     }
 
-    public double matrixDifference() {
+    double matrixDifference() {
         double result = 0;
         for (int i = 0; i < n; i++) {
             for (int k = 0; k < c; k++) {
@@ -73,7 +77,7 @@ public abstract class CMeans {
         return result;
     }
 
-    public Vector<Vector<Double>> deepCopy(Vector<Vector<Double>> oldObj) throws Exception {
+    Vector<Vector<Double>> deepCopy(Vector<Vector<Double>> oldObj) throws Exception {
         ObjectOutputStream oos = null;
         ObjectInputStream ois = null;
         try {
@@ -96,7 +100,7 @@ public abstract class CMeans {
         }
     }
 
-    public void printMatrix() {
+    void printMatrix() {
         DecimalFormat df2 = new DecimalFormat("#.##");
         for (int i = 0; i < n; i++) {
             Vector<Double> r = u1.get(i);

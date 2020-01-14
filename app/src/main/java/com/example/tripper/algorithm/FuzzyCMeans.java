@@ -1,16 +1,12 @@
-package com.example.tripper.model;
-
-import com.example.tripper.model.CMeans;
-import com.example.tripper.model.Centroid;
+package com.example.tripper.algorithm;
 
 import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.overlay.Marker;
 
 import java.util.ArrayList;
 
 public class FuzzyCMeans extends CMeans {
 
-    public FuzzyCMeans(int c, double epsilon, double m, ArrayList<Marker> markers) {
+    public FuzzyCMeans(int c, double epsilon, double m, ArrayList<GeoPoint> markers) {
         super(c, epsilon, m, markers);
     }
 
@@ -36,8 +32,8 @@ public class FuzzyCMeans extends CMeans {
                 double numeratorLon = 0;
                 double denominator = 0;
                 for (int j = 0; j < n; j++) {
-                    numeratorLat += Math.pow(u1.get(j).get(i), m) * markers.get(j).getPosition().getLatitude();
-                    numeratorLon += Math.pow(u1.get(j).get(i), m) * markers.get(j).getPosition().getLongitude();
+                    numeratorLat += Math.pow(u1.get(j).get(i), m) * markers.get(j).getLatitude();
+                    numeratorLon += Math.pow(u1.get(j).get(i), m) * markers.get(j).getLongitude();
                     denominator += Math.pow(u1.get(j).get(i), m);
                 }
                 centroids.get(i).position = new GeoPoint(numeratorLat / denominator, numeratorLon / denominator);
@@ -46,9 +42,9 @@ public class FuzzyCMeans extends CMeans {
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < c; j++) {
                     double result = 0;
-                    double numerator = markers.get(i).getPosition().distanceToAsDouble(centroids.get(j).position);
+                    double numerator = markers.get(i).distanceToAsDouble(centroids.get(j).position);
                     for (int k = 0; k < c; k++) {
-                        double temp = Math.pow(numerator / markers.get(i).getPosition().distanceToAsDouble(centroids.get(k).position), 2);
+                        double temp = Math.pow(numerator / markers.get(i).distanceToAsDouble(centroids.get(k).position), 2);
                         result += Math.pow(temp, 1 / (m - 1));
                     }
                     u1.get(i).set(j, 1 / result);
@@ -56,10 +52,12 @@ public class FuzzyCMeans extends CMeans {
             }
 
             if (matrixDifference() <= epsilon) {
+                System.out.println("Iteracje: " + t);
                 break;
             }
         }
 
+        System.out.println("Iteracje: " + maxIteration);
         System.out.println("---Exit Matrix---");
         printMatrix();
 

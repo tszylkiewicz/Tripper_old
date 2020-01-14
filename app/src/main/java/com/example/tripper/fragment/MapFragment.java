@@ -34,6 +34,7 @@ import android.widget.PopupMenu;
 
 import com.example.tripper.MainActivity;
 import com.example.tripper.R;
+import com.example.tripper.algorithm.Centroid;
 import com.example.tripper.model.Trip;
 import com.example.tripper.model.User;
 import com.example.tripper.viewmodel.MapViewModel;
@@ -111,7 +112,7 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
         mapViewModel.getDays().observe(requireActivity(), msg -> System.out.println("Zmieniono z mapa na: " + msg));
 
         mapViewModel.getCentroids().observe(requireActivity(), centroids -> {
-            //drawCentroids(centroids);
+            drawCentroids(centroids);
         });
     }
 
@@ -184,7 +185,7 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
                 case R.id.fab_create_route:
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         removeAllRoutes();
-                        drawRoads(mapViewModel.calculateRoad(new OSRMRoadManager(context)));
+                        drawRoads(mapViewModel.calculateRoad(new ArrayList<>()));
                     }
                     return false;
                 case R.id.fab_clear_markers:
@@ -203,13 +204,81 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
         });
 
         removeAllMarkers();
-        ArrayList<GeoPoint> testPunkty = mapViewModel.getCurrentPoints();
+        /*ArrayList<GeoPoint> testPunkty = mapViewModel.getCurrentPoints();
         if (testPunkty.size() > 0) {
             for (GeoPoint testPoint : testPunkty) {
                 longPressHelper(testPoint);
             }
             map.getController().animateTo(testPunkty.get(0));
+        }*/
+        ArrayList<GeoPoint> testPunkty = new ArrayList<>();
+        testPunkty.add(new GeoPoint(51.760420, 19.407577));
+        testPunkty.add(new GeoPoint(51.757175, 19.425164));
+        testPunkty.add(new GeoPoint(51.763931, 19.412367));
+        testPunkty.add(new GeoPoint(51.766401, 19.415226));
+        testPunkty.add(new GeoPoint(51.764568, 19.421320));
+        testPunkty.add(new GeoPoint(51.776187, 19.437574));
+        testPunkty.add(new GeoPoint(51.778947, 19.446647));
+        testPunkty.add(new GeoPoint(51.780009, 19.447795));
+        testPunkty.add(new GeoPoint(51.780699, 19.447065));
+        testPunkty.add(new GeoPoint(51.778781, 19.451303));
+        testPunkty.add(new GeoPoint(51.780732, 19.456903));
+        testPunkty.add(new GeoPoint(51.776776, 19.454704));
+        testPunkty.add(new GeoPoint(51.776285, 19.455155));
+        testPunkty.add(new GeoPoint(51.775953, 19.454812));
+        testPunkty.add(new GeoPoint(51.774771, 19.455091));
+        testPunkty.add(new GeoPoint(51.772879, 19.455788));
+        testPunkty.add(new GeoPoint(51.770644, 19.464006));
+        testPunkty.add(new GeoPoint(51.769628, 19.465669));
+        testPunkty.add(new GeoPoint(51.768054, 19.469961));
+        testPunkty.add(new GeoPoint(51.779788, 19.463809));
+        testPunkty.add(new GeoPoint(51.780419, 19.468186));
+        testPunkty.add(new GeoPoint(51.782437, 19.469205));
+        testPunkty.add(new GeoPoint(51.785496, 19.474616));
+        testPunkty.add(new GeoPoint(51.785290, 19.470764));
+        testPunkty.add(new GeoPoint(51.792483, 19.471519));
+        testPunkty.add(new GeoPoint(51.763779, 19.457791));
+        testPunkty.add(new GeoPoint(51.759068, 19.458263));
+        testPunkty.add(new GeoPoint(51.745045, 19.462705));
+        testPunkty.add(new GeoPoint(51.759743, 19.474864));
+        testPunkty.add(new GeoPoint(51.760533, 19.479864));
+        testPunkty.add(new GeoPoint(51.754974, 19.482192));
+        testPunkty.add(new GeoPoint(51.754368, 19.444021));
+        if (testPunkty.size() > 0) {
+
+            map.getController().animateTo(testPunkty.get(0));
+            ArrayList<ArrayList<GeoPoint>> centrs = mapViewModel.calculateRoad(testPunkty);
+            for (int i = 0; i < centrs.size(); i++) {
+                ArrayList<GeoPoint> clist = centrs.get(i);
+                for (GeoPoint pts : clist) {
+                    customDrawPoint(pts, i, clist.indexOf(pts));
+                }
+            }
+            drawRoads(centrs);
         }
+    }
+
+    private void customDrawPoint(GeoPoint pts, int i, int x) {
+        Marker marker = new Marker(map);
+        marker.setPosition(pts);
+        marker.setTitle("Element " +x);
+        switch (i) {
+            case 0:
+                marker.setIcon(getResources().getDrawable(R.drawable.ic_marker));
+                break;
+            case 1:
+                marker.setIcon(getResources().getDrawable(R.drawable.marker1));
+                break;
+            case 2:
+                marker.setIcon(getResources().getDrawable(R.drawable.marker2));
+                break;
+            case 3:
+                marker.setIcon(getResources().getDrawable(R.drawable.marker3));
+                break;
+            default:
+                break;
+        }
+        map.getOverlays().add(marker);
     }
 
     @Override
@@ -312,44 +381,41 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
         map.getOverlays().remove(marker);
     }
 
-    private void drawRoads(ArrayList<ArrayList<Marker>> markers) {
+    private void drawRoads(ArrayList<ArrayList<GeoPoint>> markers) {
         Random rnd = new Random();
         ArrayList<Polyline> routes = new ArrayList<>();
-        //RoadManager roadManager = new OSRMRoadManager(context);
         RoadManager roadManager = new MapQuestRoadManager("QJmEiN5bbsOvOAv4MKvuuuEgepqLOqec");
         roadManager.addRequestOption("routeType=" + mapViewModel.getNavigationType().toLowerCase());
 
-        for (ArrayList<Marker> markerList : markers) {
-            ArrayList<GeoPoint> wps = new ArrayList<>();
+        for (ArrayList<GeoPoint> markerList : markers) {
 
-            for (Marker marker : markerList
-            ) {
-                wps.add(marker.getPosition());
-            }
-            Road singleRoad = roadManager.getRoad(wps);
+            if (markerList.size() > 0) {
+                Road singleRoad = roadManager.getRoad(markerList);
 
-            if (singleRoad.mStatus != Road.STATUS_OK) {
-                Log.d("Road Status", "" + singleRoad.mStatus);
-            } else {
-                Polyline roadOverlay = RoadManager.buildRoadOverlay(singleRoad);
-                roadOverlay.setColor(Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)));
-                roadOverlay.setWidth(8);
-                routes.add(roadOverlay);
-                tripViewModel.addCreatedRoute(roadOverlay, markerList);
-            }
+                if (singleRoad.mStatus != Road.STATUS_OK) {
+                    Log.d("Road Status", "" + singleRoad.mStatus);
+                } else {
+                    Polyline roadOverlay = RoadManager.buildRoadOverlay(singleRoad);
+                    roadOverlay.setColor(Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)));
+                    roadOverlay.setWidth(8);
+                    routes.add(roadOverlay);
+                    System.out.println("Grupa: "+markerList.size()+" -> "+roadOverlay.getDistance());
+                    tripViewModel.addCreatedRoute(roadOverlay, markerList);
+                }
 
-            Drawable nodeIcon = getResources().getDrawable(R.drawable.ic_play);
-            for (int i = 0; i < singleRoad.mNodes.size(); i++) {
-                RoadNode node = singleRoad.mNodes.get(i);
-                Marker nodeMarker = new Marker(map);
-                nodeMarker.setPosition(node.mLocation);
-                nodeMarker.setIcon(nodeIcon);
-                nodeMarker.setTitle("Step " + i);
-                nodeMarker.setSnippet(node.mInstructions);
-                nodeMarker.setSubDescription(Road.getLengthDurationText(context, node.mLength, node.mDuration));
-                Drawable icon = getResources().getDrawable(R.drawable.ic_menu_explore);
-                nodeMarker.setImage(icon);
-                map.getOverlays().add(nodeMarker);
+                /*Drawable nodeIcon = getResources().getDrawable(R.drawable.ic_play);
+                for (int i = 0; i < singleRoad.mNodes.size(); i++) {
+                    RoadNode node = singleRoad.mNodes.get(i);
+                    Marker nodeMarker = new Marker(map);
+                    nodeMarker.setPosition(node.mLocation);
+                    nodeMarker.setIcon(nodeIcon);
+                    nodeMarker.setTitle("Step " + i);
+                    nodeMarker.setSnippet(node.mInstructions);
+                    nodeMarker.setSubDescription(Road.getLengthDurationText(context, node.mLength, node.mDuration));
+                    Drawable icon = getResources().getDrawable(R.drawable.ic_menu_explore);
+                    nodeMarker.setImage(icon);
+                    map.getOverlays().add(nodeMarker);
+                }*/
             }
         }
         for (Polyline road : routes

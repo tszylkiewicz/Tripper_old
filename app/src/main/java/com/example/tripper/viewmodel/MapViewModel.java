@@ -8,9 +8,11 @@ import androidx.annotation.RequiresApi;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.tripper.model.CMeans;
-import com.example.tripper.model.Centroid;
-import com.example.tripper.model.FuzzyCMeans;
+import com.example.tripper.algorithm.CMeans;
+import com.example.tripper.algorithm.Centroid;
+import com.example.tripper.algorithm.FuzzyCMeans;
+import com.example.tripper.algorithm.HardCMeans;
+import com.example.tripper.algorithm.PossibilisticCMeans;
 import com.example.tripper.model.HeldKarpDouble;
 import com.example.tripper.model.Point;
 import com.example.tripper.model.enums.TransportType;
@@ -23,11 +25,13 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class MapViewModel extends ViewModel {
 
@@ -102,80 +106,22 @@ public class MapViewModel extends ViewModel {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public ArrayList<ArrayList<Marker>> calculateRoad(RoadManager roadManager) {
-        routes.clear();
+    public ArrayList<ArrayList<GeoPoint>> calculateRoad(ArrayList<GeoPoint> roadMand) {
+        getRoutes().clear();
         //kMeansAlgorithm(roadManager);
         if (days.getValue() == 0) {
-            days.setValue(1);
+            days.setValue(4);
         }
-        return fuzzyCMeans(roadManager);
+        return fuzzyCMeans(roadMand);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public ArrayList<Polyline> kMeansAlgorithm(RoadManager roadManager) {
-        int k = days.getValue();
-        int temp = markers.size() / k;
-        ArrayList<Centroid> centroids = new ArrayList<>();
-        Map<GeoPoint, ArrayList<Marker>> test = new HashMap<>();
-        for (int i = 0; i < k; i++) {
-            centroids.add(new Centroid(markers.get(i * temp).getPosition()));
-            //System.out.println(markers.get(i * temp).getPosition());
-        }
-        Random rnd = new Random();
+    private ArrayList<ArrayList<GeoPoint>> fuzzyCMeans(ArrayList<GeoPoint> roadMand) {
 
-        for (int i = 0; i < 10000; i++) {
-            for (Marker marker : markers
-            ) {
-                GeoPoint markerPos = marker.getPosition();
-                Centroid selectedCentroid = centroids.get(0);
-
-                for (Centroid centroid : centroids
-                ) {
-                    if (centroid.position.distanceToAsDouble(markerPos) < selectedCentroid.position.distanceToAsDouble(markerPos)) {
-                        selectedCentroid = centroid;
-                    }
-                }
-                selectedCentroid.markers.add(marker);
-            }
-
-            for (Centroid centroid : centroids
-            ) {
-                centroid.calcuteNewPosition();
-                if (i != 999) {
-                    centroid.clearMarkers();
-                } else {
-                    //System.out.println(centroid.markers.size());
-                    //System.out.println(centroid.markers);
-                    ArrayList<GeoPoint> wps = new ArrayList<>();
-                    for (Marker marker : centroid.markers
-                    ) {
-                        wps.add(marker.getPosition());
-                    }
-                    roads = roadManager.getRoads(wps);
-
-                    for (Road singleRoad : roads
-                    ) {
-                        if (singleRoad.mStatus != Road.STATUS_OK) {
-                            Log.d("Road Status", "" + singleRoad.mStatus);
-                        } else {
-                            Polyline roadOverlay = RoadManager.buildRoadOverlay(singleRoad);
-                            roadOverlay.setColor(Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)));
-                            roadOverlay.setWidth(7);
-                            routes.add(roadOverlay);
-                        }
-                    }
-                    //this.view.drawRoads(routes);
-
-                }
-            }
-        }
-        return routes;
-    }
-
-
-    public ArrayList<ArrayList<Marker>> fuzzyCMeans(RoadManager roadManager) {
-        CMeans fuzzyCMeans = new FuzzyCMeans(days.getValue(), 0.0001, 2, markers);
-        //CMeans fuzzyCMeans = new PossibilisticCMeans(days.getValue(), 0.0001, 2, markers);
+        ArrayList<GeoPoint> testPoints = markers.stream().map(Marker::getPosition).collect(Collectors.toCollection(ArrayList::new));
+        CMeans fuzzyCMeans = new HardCMeans(4, 0.0001, 2, roadMand);
+        //CMeans fuzzyCMeans = new FuzzyCMeans(days.getValue(), 0.0001, 2, testPoints);
+        //CMeans fuzzyCMeans = new PossibilisticCMeans(days.getValue(), 0.0001, 2, testPoints);
 
         ArrayList<Centroid> centroids = fuzzyCMeans.calculate();
         Random rnd = new Random();
@@ -186,69 +132,30 @@ public class MapViewModel extends ViewModel {
             addCentroid(centroids.get(i).position);
         }
 
-        ArrayList<ArrayList<Marker>> trips = new ArrayList<>();
+        ArrayList<ArrayList<GeoPoint>> trips = new ArrayList<>();
         fuzzyCMeans.generateClusters();
         for (Centroid centroid : centroids
         ) {
             ArrayList<GeoPoint> wps = new ArrayList<>();
-            ArrayList<Marker> tripPoints = new ArrayList<>();
+            ArrayList<GeoPoint> tripPoints = new ArrayList<>();
             //HeldKarpAlgorithm(centroid.markers);
-            //for (Marker marker : RNN(centroid.markers)
-            //for (Marker marker : ThreeOpt(centroid.markers)
-            for (Marker marker : HeldKarpAlgorithm(centroid.markers)
+            //for (GeoPoint marker : RNN(centroid.markers)
+            //for (GeoPoint marker : ThreeOpt(centroid.markers)
+            for (GeoPoint marker : HeldKarpAlgorithm(centroid.markers)
             ) {
-                wps.add(marker.getPosition());
+                wps.add(marker);
                 tripPoints.add(marker);
             }
             trips.add(tripPoints);
-            /*roads = roadManager.getRoads(wps);
-
-            for (Road singleRoad : roads
-            ) {
-                if (singleRoad.mStatus != Road.STATUS_OK) {
-                    Log.d("Road Status", "" + singleRoad.mStatus);
-                } else {
-                    Polyline roadOverlay = RoadManager.buildRoadOverlay(singleRoad);
-                    roadOverlay.setColor(Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)));
-                    roadOverlay.setWidth(8);
-                    routes.add(roadOverlay);
-                }
-            }*/
-            //this.view.drawRoads(routes);
         }
         return trips;
-        //return routes;
-        //TEST SET
-        /*ArrayList<Marker> testSet = new ArrayList<>();
-
-        Marker marker1 = new Marker(mapView);
-        marker1.setPosition(new GeoPoint(4d, 4d));
-        testSet.add(marker1);
-
-        Marker marker2 = new Marker(mapView);
-        marker2.setPosition(new GeoPoint(5d, 5d));
-        testSet.add(marker2);
-
-        Marker marker3 = new Marker(mapView);
-        marker3.setPosition(new GeoPoint(2d, 2d));
-        testSet.add(marker3);
-
-        Marker marker4 = new Marker(mapView);
-        marker4.setPosition(new GeoPoint(1d, 1d));
-        testSet.add(marker4);
-
-        Marker marker5 = new Marker(mapView);
-        marker5.setPosition(new GeoPoint(3d, 3d));
-        testSet.add(marker5);
-
-        RNN(testSet);*/
     }
 
-    public ArrayList<Marker> RNN(ArrayList<Marker> group) {
+    private ArrayList<GeoPoint> RNN(ArrayList<GeoPoint> group) {
         int amount = group.size();
         //System.out.println("Amount: " + amount);
-        ArrayList<Marker> order = new ArrayList<>();
-        ArrayList<Marker> finalOrder = new ArrayList<>();
+        ArrayList<GeoPoint> order = new ArrayList<>();
+        ArrayList<GeoPoint> finalOrder = new ArrayList<>();
         double currentDistance;
         double prevDistance = 0;
 
@@ -260,27 +167,27 @@ public class MapViewModel extends ViewModel {
 
             for (int i = 1; i < amount; i++) {
                 int a = -1;
-                for (Marker marker : group
+                for (GeoPoint marker : group
                 ) {
                     if (!order.contains(marker)) {
                         if (a == -1) {
                             a = group.indexOf(marker);
-                        } else if (marker.getPosition().distanceToAsDouble(order.get(i - 1).getPosition()) < group.get(a).getPosition().distanceToAsDouble(order.get(i - 1).getPosition())) {
+                        } else if (marker.distanceToAsDouble(order.get(i - 1)) < group.get(a).distanceToAsDouble(order.get(i - 1))) {
                             a = group.indexOf(marker);
                         }
                     }
                 }
                 order.add(group.get(a));
-                currentDistance += order.get(i).getPosition().distanceToAsDouble(order.get(i - 1).getPosition());
+                currentDistance += order.get(i).distanceToAsDouble(order.get(i - 1));
             }
 
             if (currentDistance < prevDistance || finalOrder.isEmpty()) {
-                finalOrder = (ArrayList<Marker>) order.clone();
+                finalOrder = (ArrayList<GeoPoint>) order.clone();
                 prevDistance = currentDistance;
             }
         }
 
-        for (Marker marker : finalOrder) {
+        for (GeoPoint marker : finalOrder) {
             // System.out.println(marker.getPosition());
         }
         System.out.println("Total distance: " + prevDistance);
@@ -328,10 +235,10 @@ public class MapViewModel extends ViewModel {
         return order;
     }
 
-    private ArrayList<Marker> groupOpt;
-    private ArrayList<Marker> newGroupOpt;
+    private ArrayList<GeoPoint> groupOpt;
+    private ArrayList<GeoPoint> newGroupOpt;
 
-    private ArrayList<Marker> TwoOpt(ArrayList<Marker> group) {
+    private ArrayList<GeoPoint> TwoOpt(ArrayList<GeoPoint> group) {
         // Get tour size
         System.out.println("---TWO OPT BEGIN---");
         this.groupOpt = group;
@@ -382,7 +289,7 @@ public class MapViewModel extends ViewModel {
         return groupOpt;
     }
 
-    private ArrayList<Marker> ThreeOpt(ArrayList<Marker> group) {
+    private ArrayList<GeoPoint> ThreeOpt(ArrayList<GeoPoint> group) {
         // Get tour size
         System.out.println("---THREE OPT BEGIN---");
         this.groupOpt = group;
@@ -457,14 +364,14 @@ public class MapViewModel extends ViewModel {
         }
     }
 
-    private ArrayList<Marker> HeldKarpAlgorithm(ArrayList<Marker> points) {
+    private ArrayList<GeoPoint> HeldKarpAlgorithm(ArrayList<GeoPoint> points) {
         int size = points.size();
         double[][] distanceMatrix = new double[size][size];
-        for (Marker marker :
+        for (GeoPoint marker :
                 points) {
-            for (Marker marker2 :
+            for (GeoPoint marker2 :
                     points) {
-                distanceMatrix[points.indexOf(marker)][points.indexOf(marker2)] = marker.getPosition().distanceToAsDouble(marker2.getPosition());
+                distanceMatrix[points.indexOf(marker)][points.indexOf(marker2)] = marker.distanceToAsDouble(marker2);
             }
         }
         System.out.println("---DISTANCE MATRIX---");
@@ -503,7 +410,7 @@ public class MapViewModel extends ViewModel {
         List<Integer> solution = test.calculateHeldKarp();
 
 
-        ArrayList<Marker> resultSet = new ArrayList<>();
+        ArrayList<GeoPoint> resultSet = new ArrayList<>();
 
         for (int i = 0; i < solution.size() - 1; i++) {
             resultSet.add(points.get(solution.get(i)));
@@ -515,10 +422,10 @@ public class MapViewModel extends ViewModel {
         return resultSet;
     }
 
-    private double routeDistance(ArrayList<Marker> group) {
+    private double routeDistance(ArrayList<GeoPoint> group) {
         double result = 0;
         for (int i = 0; i < group.size() - 1; i++) {
-            result += group.get(i).getPosition().distanceToAsDouble(group.get(i + 1).getPosition());
+            result += group.get(i).distanceToAsDouble(group.get(i + 1));
         }
         return result;
     }

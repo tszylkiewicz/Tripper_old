@@ -1,12 +1,8 @@
 package com.example.tripper.repository;
 
-import android.util.Pair;
-
 import com.example.tripper.model.Trip;
-import com.example.tripper.model.TripPoint;
 import com.google.gson.JsonObject;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Single;

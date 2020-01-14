@@ -66,10 +66,10 @@ public class TripAdapter extends ArrayAdapter<Trip> implements View.OnClickListe
             viewHolder = new ViewHolder();
             LayoutInflater inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.list_item_trip, parent, false);
-            viewHolder.name = (TextView) convertView.findViewById(R.id.name);
-            viewHolder.description = (TextView) convertView.findViewById(R.id.description);
+            viewHolder.name = convertView.findViewById(R.id.name);
+            viewHolder.description = convertView.findViewById(R.id.description);
             //viewHolder.txtVersion = (TextView) convertView.findViewById(R.id.version_number);
-            viewHolder.info = (ImageView) convertView.findViewById(R.id.picture);
+            viewHolder.info = convertView.findViewById(R.id.picture);
 
             result = convertView;
 
