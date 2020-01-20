@@ -17,8 +17,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 
 import com.example.tripper.MainActivity;
 import com.example.tripper.R;
@@ -36,8 +34,6 @@ public class SingleTripFragment extends Fragment {
     private EditText name;
     private EditText description;
 
-    private TextView distance;
-    private TextView transportType;
     private CheckBox shared;
 
     private Button edit;
@@ -46,20 +42,16 @@ public class SingleTripFragment extends Fragment {
 
     private Trip trip;
 
-    public static ProfileFragment newInstance() {
-        return new ProfileFragment();
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        tripViewModel = ViewModelProviders.of(requireActivity()).get(TripViewModel.class);
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_single_trip, container, false);
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        tripViewModel = ViewModelProviders.of(requireActivity()).get(TripViewModel.class);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -71,18 +63,16 @@ public class SingleTripFragment extends Fragment {
 
         name = view.findViewById(R.id.name);
         description = view.findViewById(R.id.description);
-
-        distance = view.findViewById(R.id.distance);
-        transportType = view.findViewById(R.id.transportType);
+        TextView distance = view.findViewById(R.id.distance);
+        TextView transportType = view.findViewById(R.id.transportType);
         shared = view.findViewById(R.id.shared);
+        edit = view.findViewById(R.id.edit);
+        save = view.findViewById(R.id.save);
+        cancel = view.findViewById(R.id.cancel);
 
         DecimalFormat df2 = new DecimalFormat("#.##");
         distance.setText(df2.format(trip.getDistance()) + " meters");
         transportType.setText(trip.getTransportType());
-
-        edit = view.findViewById(R.id.edit);
-        save = view.findViewById(R.id.save);
-        cancel = view.findViewById(R.id.cancel);
 
         disableEdition();
         setDefaultValues();
@@ -92,19 +82,17 @@ public class SingleTripFragment extends Fragment {
         save.setOnClickListener(view1 -> {
             trip.setName(name.getText().toString());
             trip.setDescription(description.getText().toString());
-            if (shared.isSelected()) {
+
+            if (shared.isChecked()) {
                 trip.setShared(1);
             } else {
                 trip.setShared(0);
             }
 
             MainActivity.getDisposables().add(tripViewModel.update(trip)
-                    .subscribe(user1 -> {
-                        System.out.println("NEW TRIP DATA");
-                        System.out.println(user1.getAllData());
-                    }, Throwable::printStackTrace)
+                    .subscribe(trip -> tripViewModel.setCurrentTrip(trip), Throwable::printStackTrace)
             );
-            tripViewModel.setCurrentTrip(trip);
+
             disableEdition();
         });
 
@@ -116,16 +104,15 @@ public class SingleTripFragment extends Fragment {
 
     private void setDefaultValues() {
         name.setText(trip.getName());
-        description.setText(trip.getDescription());
         if (trip.getDescription() != null) {
             description.setText(trip.getDescription());
         } else {
             description.setText("");
         }
         if (trip.isShared() == 1) {
-            shared.setSelected(true);
+            shared.setChecked(true);
         } else {
-            shared.setSelected(false);
+            shared.setChecked(false);
         }
     }
 
@@ -135,6 +122,7 @@ public class SingleTripFragment extends Fragment {
         edit.setVisibility(View.VISIBLE);
         save.setVisibility(View.GONE);
         cancel.setVisibility(View.GONE);
+        shared.setClickable(false);
     }
 
     private void enableEdition() {
@@ -143,6 +131,7 @@ public class SingleTripFragment extends Fragment {
         edit.setVisibility(View.GONE);
         save.setVisibility(View.VISIBLE);
         cancel.setVisibility(View.VISIBLE);
+        shared.setClickable(true);
     }
 
     private void disableEditText(EditText editText) {

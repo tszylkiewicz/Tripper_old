@@ -16,9 +16,6 @@ import retrofit2.http.Path;
 
 public interface ApiService {
 
-    @GET("user/1")
-    Single<User> getFirstUser();
-
     // =============================================================================================
     // Authentication endpoints
     // =============================================================================================

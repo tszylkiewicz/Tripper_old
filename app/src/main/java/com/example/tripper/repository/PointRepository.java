@@ -1,21 +1,16 @@
 package com.example.tripper.repository;
 
 import com.example.tripper.model.Point;
-import com.example.tripper.model.Trip;
-import com.example.tripper.model.User;
 import com.google.gson.JsonObject;
 
 import org.osmdroid.util.GeoPoint;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import io.reactivex.Single;
 
-public class PointRepository {
-
-    private ApiService api = HttpClient.getApiService();
+public class PointRepository extends ModelRepository {
 
     public Single<List<Point>> addPoints(int tripId, ArrayList<GeoPoint> points) {
 

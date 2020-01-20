@@ -7,9 +7,7 @@ import java.util.List;
 
 import io.reactivex.Single;
 
-public class TripRepository {
-
-    private ApiService api = HttpClient.getApiService();
+public class TripRepository extends ModelRepository {
 
     public Single<Trip> createTrip(int userId, String name, String description, double distance, String transportType, int shared) {
         JsonObject request = new JsonObject();

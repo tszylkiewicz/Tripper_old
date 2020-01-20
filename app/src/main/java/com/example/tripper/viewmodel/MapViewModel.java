@@ -48,8 +48,6 @@ public class MapViewModel extends ViewModel {
 
     private ArrayList<Marker> markers;
     private ArrayList<Polyline> routes;
-    private Road[] roads;
-
 
     private double currentZoomLevel = 15d;
     private GeoPoint currentCenter = new GeoPoint(51.13, 19.63);
@@ -383,29 +381,7 @@ public class MapViewModel extends ViewModel {
         }
         System.out.println("---END DISTANCE MATRIX---");
 
-        double[][] test1 = {
-                {0, 2, 9, 10},
-                {1, 0, 6, 4},
-                {15, 7, 0, 8},
-                {6, 3, 12, 0}
-        };
 
-        double[][] test2 = {
-                {0, 49, 34, 96, 74},
-                {49, 0, 10, 94, 43},
-                {34, 10, 0, 21, 6},
-                {96, 94, 21, 0, 70},
-                {74, 43, 6, 70, 0}
-        };
-
-        double[][] test3 = {
-                {0, 10, 15, 20},
-                {10, 0, 35, 25},
-                {15, 35, 0, 30},
-                {20, 25, 30, 0}
-        };
-
-        //HeldKarp test = new HeldKarp(distanceMatrix, 0);
         HeldKarpDouble test = new HeldKarpDouble(distanceMatrix, 0);
         List<Integer> solution = test.calculateHeldKarp();
 

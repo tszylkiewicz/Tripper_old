@@ -45,4 +45,7 @@
     <string name="btn_skip">Skip</string>
 
     <string name="cb_remeber_me">Remember me</string>
+
+    <string name="sign_in_success">Signed in successfully</string>
+    <string name="sign_up_success">Signed up successfully</string>
 </resources>

@@ -5,9 +5,7 @@ import com.google.gson.JsonObject;
 
 import io.reactivex.Single;
 
-public class UserRepository {
-
-    private ApiService api = HttpClient.getApiService();
+public class UserRepository extends ModelRepository{
 
     public Single<User> signUp(String email, String username, String password) {
         JsonObject request = new JsonObject();

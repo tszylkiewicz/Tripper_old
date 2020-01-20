@@ -35,21 +35,13 @@ import io.reactivex.disposables.CompositeDisposable;
 public class SignUpFragment extends Fragment {
 
     private UserViewModel userViewModel;
+    private NavController navController;
 
     private TextInputLayout username;
     private TextInputLayout email;
     private TextInputLayout password;
     private TextInputLayout confirmPassword;
     private Button signUp;
-
-    private TextView title;
-
-    private TextWatcher textWatcher;
-    NavController navController;
-
-    public static SignUpFragment newInstance() {
-        return new SignUpFragment();
-    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -74,12 +66,9 @@ public class SignUpFragment extends Fragment {
         signUp = view.findViewById(R.id.signUp);
         signUp.setEnabled(false);
 
-        title = view.findViewById(R.id.title);
-
-        textWatcher = new TextWatcher() {
+        TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
 
             @Override
@@ -101,7 +90,6 @@ public class SignUpFragment extends Fragment {
         navController = Navigation.findNavController(view);
 
         signUp.setOnClickListener(view1 -> {
-            title.setText("HTTP Request in progress.");
             signUp.setEnabled(false);
             MainActivity.getDisposables().add(userViewModel.signUp(email.getEditText().getText().toString(), username.getEditText().getText().toString(), password.getEditText().getText().toString())
                     .subscribe(this::OnSignUp, this::SignUpDenied)
@@ -110,15 +98,13 @@ public class SignUpFragment extends Fragment {
     }
 
     private void OnSignUp(User user) {
-        System.out.println(user.getFormattedInfo());
         userViewModel.setCurrentUser(user);
         signUp.setEnabled(true);
-        title.setText("Zarejestrowano pomyślnie");
+        Toast.makeText(this.getContext(), R.string.sign_up_success, Toast.LENGTH_LONG).show();
         navController.navigate(R.id.action_signUpFragment_to_nav_map);
     }
 
     private void SignUpDenied(Throwable throwable) {
-        title.setText("Błędne dane rejestracji");
         signUp.setEnabled(true);
         System.out.println(throwable);
         AlertDialog.Builder dlgAlert = new AlertDialog.Builder(getContext());

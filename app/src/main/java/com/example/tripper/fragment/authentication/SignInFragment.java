@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.tripper.MainActivity;
 import com.example.tripper.R;
@@ -34,21 +35,12 @@ import io.reactivex.disposables.CompositeDisposable;
 public class SignInFragment extends Fragment {
 
     private UserViewModel userViewModel;
+    private NavController navController;
 
     private TextInputLayout email;
     private TextInputLayout password;
+
     private Button signIn;
-    private Button signUp;
-    private TextView title;
-
-    private Button skip;
-
-    private TextWatcher textWatcher;
-    private NavController navController;
-
-    public static SignInFragment newInstance() {
-        return new SignInFragment();
-    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -68,17 +60,15 @@ public class SignInFragment extends Fragment {
 
         email = view.findViewById(R.id.email);
         password = view.findViewById(R.id.password);
-
         signIn = view.findViewById(R.id.signIn);
-        signIn.setEnabled(false);
-        signUp = view.findViewById(R.id.signUp);
-skip = view.findViewById(R.id.skip);
-        title = view.findViewById(R.id.title);
+        Button signUp = view.findViewById(R.id.signUp);
+        Button skip = view.findViewById(R.id.skip);
 
-        textWatcher = new TextWatcher() {
+        signIn.setEnabled(false);
+
+        TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
 
             @Override
@@ -101,32 +91,26 @@ skip = view.findViewById(R.id.skip);
 
         navController = Navigation.findNavController(view);
         signIn.setOnClickListener(view1 -> {
-            title.setText("HTTP Request in progress.");
             signIn.setEnabled(false);
+            Toast.makeText(getContext(), "Checking", Toast.LENGTH_LONG).show();
             MainActivity.getDisposables().add(userViewModel.signIn(email.getEditText().getText().toString(), password.getEditText().getText().toString())
                     .subscribe(this::OnSignIn, this::SignInDenied)
             );
         });
 
-        signUp.setOnClickListener(view1 -> {
-            navController.navigate(R.id.action_signInFragment_to_signUpFragment);
-        });
-        skip.setOnClickListener(view1 -> {
-            navController.navigate(R.id.action_signInFragment_to_nav_map);
-        });
+        signUp.setOnClickListener(view1 -> navController.navigate(R.id.action_signInFragment_to_signUpFragment));
+        skip.setOnClickListener(view1 -> navController.navigate(R.id.action_signInFragment_to_nav_map));
 
     }
 
     private void OnSignIn(User user) {
-        System.out.println(user.getFormattedInfo());
         userViewModel.setCurrentUser(user);
         signIn.setEnabled(true);
-        title.setText("Zalogowano pomyślnie");
+        Toast.makeText(getContext(), R.string.sign_in_success, Toast.LENGTH_LONG).show();
         navController.navigate(R.id.action_signInFragment_to_nav_map);
     }
 
     private void SignInDenied(Throwable throwable) {
-        title.setText("Błędne dane logowania");
         signIn.setEnabled(true);
         System.out.println(throwable);
         AlertDialog.Builder dlgAlert = new AlertDialog.Builder(getContext());
