@@ -1,4 +1,4 @@
-package com.example.tripper;
+package com.example.tripper.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.example.tripper.R;
 import com.example.tripper.model.Trip;
 import com.google.android.material.snackbar.Snackbar;
 

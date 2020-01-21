@@ -15,7 +15,7 @@ import androidx.navigation.Navigation;
 
 import com.example.tripper.MainActivity;
 import com.example.tripper.R;
-import com.example.tripper.TripAdapter;
+import com.example.tripper.adapter.TripAdapter;
 import com.example.tripper.model.Trip;
 import com.example.tripper.viewmodel.TripViewModel;
 import com.example.tripper.viewmodel.UserViewModel;

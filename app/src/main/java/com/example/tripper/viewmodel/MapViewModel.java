@@ -1,8 +1,6 @@
 package com.example.tripper.viewmodel;
 
-import android.graphics.Color;
 import android.os.Build;
-import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 import androidx.lifecycle.MutableLiveData;
@@ -12,121 +10,45 @@ import com.example.tripper.algorithm.CMeans;
 import com.example.tripper.algorithm.Centroid;
 import com.example.tripper.algorithm.FuzzyCMeans;
 import com.example.tripper.algorithm.HardCMeans;
-import com.example.tripper.algorithm.PossibilisticCMeans;
 import com.example.tripper.model.HeldKarpDouble;
 import com.example.tripper.model.Point;
-import com.example.tripper.model.enums.TransportType;
 
-import org.osmdroid.bonuspack.routing.Road;
-import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
 public class MapViewModel extends ViewModel {
 
-    private MutableLiveData<Integer> days;
-    private MutableLiveData<TransportType> transportType;
-
-    private ITileSource tileSource;
-    private String navigationType;
-
-    private MutableLiveData<ArrayList<Marker>> markersLiveData;
-    private MutableLiveData<ArrayList<Polyline>> routesLiveData;
-
     private MutableLiveData<ArrayList<GeoPoint>> centroids;
 
-    private ArrayList<Marker> markers;
-    private ArrayList<Polyline> routes;
-
-    private double currentZoomLevel = 15d;
-    private GeoPoint currentCenter = new GeoPoint(51.13, 19.63);
-
+    /**************************************************************************************************/
+    private GeoPoint currentCenter = new GeoPoint(52.13, 19.63);
     private ArrayList<GeoPoint> currentPoints;
+    private double currentZoomLevel = 15d;
 
-
-    public ArrayList<Marker> getMarkers() {
-        if (markers == null) {
-            markers = new ArrayList<>();
-        }
-        return markers;
-    }
-
-    public void addMarker(Marker marker) {
-        if (markers == null) {
-            markers = new ArrayList<>();
-        }
-        markers.add(marker);
-        System.out.println("Add: " + markers.size());
-    }
-
-    public void removeMarker(Marker marker) {
-        if (markers == null) {
-            markers = new ArrayList<>();
-        }
-        markers.remove(marker);
-        System.out.println("Remove: " + markers.size());
-    }
-
-    public void removeAllMarkers() {
-        if (markers == null) {
-            markers = new ArrayList<>();
-        }
-        if (!markers.isEmpty()) {
-            markers.clear();
-        }
-    }
-
-    public ArrayList<Polyline> getRoutes() {
-        if (routes == null) {
-            routes = new ArrayList<>();
-        }
-        return routes;
-    }
-
-    public void removeAllRoutes() {
-        if (routes == null) {
-            routes = new ArrayList<>();
-        }
-        if (!routes.isEmpty()) {
-            routes.clear();
-        }
-    }
+    private int days = 1;
+    private String navigationType = "Fastest";
+    private ITileSource tileSource = TileSourceFactory.MAPNIK;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public ArrayList<ArrayList<GeoPoint>> calculateRoad(ArrayList<GeoPoint> roadMand) {
-        getRoutes().clear();
-        //kMeansAlgorithm(roadManager);
-        if (days.getValue() == 0) {
-            days.setValue(4);
-        }
-        return fuzzyCMeans(roadMand);
-    }
+    public ArrayList<ArrayList<GeoPoint>> calculateRoad() {
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private ArrayList<ArrayList<GeoPoint>> fuzzyCMeans(ArrayList<GeoPoint> roadMand) {
-
-        ArrayList<GeoPoint> testPoints = markers.stream().map(Marker::getPosition).collect(Collectors.toCollection(ArrayList::new));
-        CMeans fuzzyCMeans = new HardCMeans(4, 0.0001, 2, roadMand);
+        //CMeans fuzzyCMeans = new HardCMeans(4, 0.0001, 2, roadMand);
+        CMeans fuzzyCMeans = new HardCMeans(days, 0.0001, 2, currentPoints);
         //CMeans fuzzyCMeans = new FuzzyCMeans(days.getValue(), 0.0001, 2, testPoints);
         //CMeans fuzzyCMeans = new PossibilisticCMeans(days.getValue(), 0.0001, 2, testPoints);
 
         ArrayList<Centroid> centroids = fuzzyCMeans.calculate();
-        Random rnd = new Random();
 
         this.centroids.getValue().clear();
         for (int i = 0; i < centroids.size(); i++) {
-            //addMarker(centroids.get(i).position, this.mapView, null);
             addCentroid(centroids.get(i).position);
         }
 
@@ -137,9 +59,9 @@ public class MapViewModel extends ViewModel {
             ArrayList<GeoPoint> wps = new ArrayList<>();
             ArrayList<GeoPoint> tripPoints = new ArrayList<>();
             //HeldKarpAlgorithm(centroid.markers);
-            //for (GeoPoint marker : RNN(centroid.markers)
+            for (GeoPoint marker : RNN(centroid.markers)
             //for (GeoPoint marker : ThreeOpt(centroid.markers)
-            for (GeoPoint marker : HeldKarpAlgorithm(centroid.markers)
+            //for (GeoPoint marker : HeldKarpAlgorithm(centroid.markers)
             ) {
                 wps.add(marker);
                 tripPoints.add(marker);
@@ -406,47 +328,6 @@ public class MapViewModel extends ViewModel {
         return result;
     }
 
-    public MutableLiveData<Integer> getDays() {
-        if (days == null) {
-            days = new MutableLiveData<>();
-            days.setValue(1);
-        }
-        return days;
-    }
-
-    public void setDays(int days) {
-        this.days.setValue(days);
-    }
-
-    public MutableLiveData<TransportType> getTransportType() {
-        if (transportType == null) {
-            transportType = new MutableLiveData<>();
-            transportType.setValue(TransportType.CAR);
-        }
-        return transportType;
-    }
-
-    public void setTransportType(TransportType transportType) {
-        this.transportType.setValue(transportType);
-    }
-
-    public MutableLiveData<ArrayList<Marker>> getMarkersLiveData() {
-        if (markersLiveData == null) {
-            markersLiveData = new MutableLiveData<>();
-            markers = new ArrayList<>();
-            markersLiveData.setValue(markers);
-        }
-        return markersLiveData;
-    }
-
-    public MutableLiveData<ArrayList<Polyline>> getRoutesLiveData() {
-        if (routesLiveData == null) {
-            routesLiveData = new MutableLiveData<>();
-            routes = new ArrayList<>();
-            routesLiveData.setValue(routes);
-        }
-        return routesLiveData;
-    }
 
     public MutableLiveData<ArrayList<GeoPoint>> getCentroids() {
         if (centroids == null) {
@@ -456,23 +337,22 @@ public class MapViewModel extends ViewModel {
         return centroids;
     }
 
-    public void addCentroid(GeoPoint centroid) {
+    private void addCentroid(GeoPoint centroid) {
         centroids.getValue().add(centroid);
         centroids.setValue(centroids.getValue());
     }
 
-    public void removeRoute(Polyline polyline) {
-        if (routes == null) {
-            routes = new ArrayList<>();
-        }
-        routes.remove(polyline);
-        System.out.println("Route removed");
+
+    /**************************************************************************************************/
+    public int getDays() {
+        return days;
+    }
+
+    public void setDays(int days) {
+        this.days = days;
     }
 
     public ITileSource getTileSource() {
-        if (tileSource == null) {
-            tileSource = TileSourceFactory.MAPNIK;
-        }
         return tileSource;
     }
 
@@ -481,9 +361,7 @@ public class MapViewModel extends ViewModel {
     }
 
     public String getNavigationType() {
-        if (navigationType == null) {
-            navigationType = "Fastest";
-        }
+        System.out.println(navigationType);
         return navigationType;
     }
 
@@ -507,17 +385,21 @@ public class MapViewModel extends ViewModel {
         this.currentCenter = currentCenter;
     }
 
-    public void setCurrentPoints(List<Point> points) {
+    public ArrayList<GeoPoint> getCurrentPoints() {
+        if (currentPoints == null) {
+            currentPoints = new ArrayList<>();
+        }
+        return currentPoints;
+    }
+
+    public void setCurrentPoints(ArrayList<GeoPoint> points) {
+        currentPoints = points;
+    }
+
+    public void loadCurrentPoints(List<Point> points) {
         currentPoints = new ArrayList<>();
         for (Point point : points) {
             currentPoints.add(new GeoPoint(point.getLatitude(), point.getLongitude()));
         }
-    }
-
-    public ArrayList<GeoPoint> getCurrentPoints(){
-        if(currentPoints == null){
-            currentPoints = new ArrayList<>();
-        }
-        return currentPoints;
     }
 }

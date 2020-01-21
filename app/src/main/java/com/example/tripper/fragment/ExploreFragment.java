@@ -15,7 +15,7 @@ import androidx.navigation.Navigation;
 
 import com.example.tripper.MainActivity;
 import com.example.tripper.R;
-import com.example.tripper.TripAdapter;
+import com.example.tripper.adapter.TripAdapter;
 import com.example.tripper.model.Trip;
 import com.example.tripper.viewmodel.MapViewModel;
 import com.example.tripper.viewmodel.TripViewModel;
@@ -72,7 +72,7 @@ public class ExploreFragment extends Fragment {
 
             MainActivity.getDisposables().add(tripViewModel.getAllTripPoints(trip.getId())
                     .subscribe(points -> {
-                mapViewModel.setCurrentPoints(points);
+                mapViewModel.loadCurrentPoints(points);
                 navController.navigate(R.id.nav_map);
             }, Throwable::printStackTrace));
         });

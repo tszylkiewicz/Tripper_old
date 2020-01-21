@@ -34,10 +34,6 @@ public class MapSettingsFragment extends Fragment {
     private Spinner tileSource;
 
 
-    public static MapSettingsFragment newInstance() {
-        return new MapSettingsFragment();
-    }
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -48,14 +44,6 @@ public class MapSettingsFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mapViewModel = ViewModelProviders.of(requireActivity()).get(MapViewModel.class);
-        mapViewModel.getDays().observe(requireActivity(), day -> {
-            //System.out.println("Zmieniono z ustawienia na: " + msg);
-            //if (msg != null && days != null) {
-            //    days.setValue(msg);
-            //}
-        });
-        mapViewModel.getTransportType().observe(requireActivity(), transportType -> {
-        });
     }
 
     @Override
@@ -71,7 +59,7 @@ public class MapSettingsFragment extends Fragment {
 
         days.setMinValue(1);
         days.setMaxValue(30);
-        days.setValue(mapViewModel.getDays().getValue());
+        days.setValue(mapViewModel.getDays());
         days.setOnValueChangedListener(onValueChangeListener);
 
         ArrayList<String> navigationType = new ArrayList<>();
@@ -89,7 +77,6 @@ public class MapSettingsFragment extends Fragment {
         transportType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                System.out.println("CHOSEN NAVIGATION TYPE:" + transportType.getSelectedItem());
                 mapViewModel.setNavigationType((String) transportType.getSelectedItem());
             }
 
