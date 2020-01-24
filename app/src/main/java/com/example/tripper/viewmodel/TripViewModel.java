@@ -33,24 +33,18 @@ public class TripViewModel extends ViewModel {
 
         if (createdRoutes != null) {
             ArrayList<GeoPoint> points = createdRoutes.get(polyline);
-            double distance = polyline.getDistance();
-            System.out.println("MARKER COUNT: " + points.size());
 
-            System.out.println("Zapisano trasę");
             MainActivity.getDisposables().add(pointRepository.addPoints(tripId, points).observeOn(mainThread()).subscribeOn(Schedulers.io()).subscribe(user1 -> {
                 System.out.println("POINTS SAVED SUCCESSFULLY");
-                //saveTrip(user1, userId, "Name", "Description", distance, "car");
             }, Throwable::printStackTrace));
         } else {
-            System.out.println("Nie ma tras s TripViewModel");
+            System.out.println("Nie ma tras w TripViewModel");
         }
     }
 
     public void saveTrip(Polyline polyline, int userId, String name, String description, String transportType) {
-        MainActivity.getDisposables().add(tripRepository.createTrip(userId, name, description, polyline.getDistance(), transportType, 0).observeOn(mainThread()).subscribeOn(Schedulers.io()).subscribe(user1 -> {
-            System.out.println("TRIP SAVED SUCCESSFULLY");
-            System.out.println(user1.getAllData());
-            savePoints(polyline, user1.getId());
+        MainActivity.getDisposables().add(tripRepository.createTrip(userId, name, description, polyline.getDistance(), transportType, 0).observeOn(mainThread()).subscribeOn(Schedulers.io()).subscribe(trip -> {
+            savePoints(polyline, trip.getId());
         }, Throwable::printStackTrace));
     }
 
@@ -78,14 +72,7 @@ public class TripViewModel extends ViewModel {
     }
 
     public Single<Trip> update(Trip trip) {
-        return tripRepository.update(trip).observeOn(mainThread()).subscribeOn(Schedulers.io());
-    }
-
-    public HashMap<Polyline, ArrayList<GeoPoint>> getCreatedRoutes() {
-        if (createdRoutes == null) {
-            createdRoutes = new HashMap<>();
-        }
-        return createdRoutes;
+        return tripRepository.updateTrip(trip).observeOn(mainThread()).subscribeOn(Schedulers.io());
     }
 
     public Single<List<Point>> getAllTripPoints(int tripId) {

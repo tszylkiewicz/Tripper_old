@@ -5,7 +5,7 @@ import com.example.tripper.algorithm.Centroid;
 import com.example.tripper.algorithm.FuzzyCMeans;
 import com.example.tripper.algorithm.HardCMeans;
 import com.example.tripper.algorithm.PossibilisticCMeans;
-import com.example.tripper.model.HeldKarpDouble;
+import com.example.tripper.algorithm.HeldKarpDouble;
 
 import org.junit.Test;
 import org.osmdroid.util.GeoPoint;

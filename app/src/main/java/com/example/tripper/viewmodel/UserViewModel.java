@@ -24,7 +24,7 @@ public class UserViewModel extends ViewModel {
     }
 
     public Single<User> update(User user) {
-        return userRepository.update(user).observeOn(mainThread()).subscribeOn(Schedulers.io());
+        return userRepository.updateUser(user).observeOn(mainThread()).subscribeOn(Schedulers.io());
     }
 
     public User getCurrentUser() {

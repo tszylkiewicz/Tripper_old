@@ -10,7 +10,7 @@ import java.util.List;
 
 import io.reactivex.Single;
 
-public class PointRepository extends ModelRepository {
+public class PointRepository extends ModelRepository<Point> {
 
     public Single<List<Point>> addPoints(int tripId, ArrayList<GeoPoint> points) {
 
@@ -29,5 +29,25 @@ public class PointRepository extends ModelRepository {
 
     public Single<List<Point>> getAllTripPoints(int tripId) {
         return api.getAllTripPoints(tripId);
+    }
+
+    @Override
+    public Single<Point> create(Point modelObject) {
+        return api.create(modelObject);
+    }
+
+    @Override
+    public Single<Point> read(int id) {
+        return api.readPoint(id);
+    }
+
+    @Override
+    public Single<Point> update(Point modelObject) {
+        return api.update(modelObject);
+    }
+
+    @Override
+    public boolean delete(int id) {
+        return api.deletePoint(id);
     }
 }

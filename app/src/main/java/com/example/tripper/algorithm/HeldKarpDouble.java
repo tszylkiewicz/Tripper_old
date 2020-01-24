@@ -1,7 +1,6 @@
-package com.example.tripper.model;
+package com.example.tripper.algorithm;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -143,15 +142,15 @@ public class HeldKarpDouble {
     }
 
     //setters
-    public void setMatrix(double[][] matrix) {
+    private void setMatrix(double[][] matrix) {
         this.matrix = matrix;
     }
 
-    public void setStartingCity(int startingCity) {
+    private void setStartingCity(int startingCity) {
         this.startingCity = startingCity;
     }
 
-    public static int intPow(int a, int b) {
+    private static int intPow(int a, int b) {
         int res = 1;
         while (b > 0) {
             if ((b & 1) == 1) {
@@ -163,7 +162,7 @@ public class HeldKarpDouble {
         return res;
     }
 
-    public static int getEntriesNum(int cities) {
+    private static int getEntriesNum(int cities) {
         return cities * intPow(2, (cities - 1));
     }
 }

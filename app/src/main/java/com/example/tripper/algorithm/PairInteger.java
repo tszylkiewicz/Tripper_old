@@ -1,4 +1,4 @@
-package com.example.tripper.model;
+package com.example.tripper.algorithm;
 
 public class PairInteger {
     protected int first;

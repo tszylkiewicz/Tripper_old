@@ -8,21 +8,17 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.tripper.algorithm.CMeans;
 import com.example.tripper.algorithm.Centroid;
-import com.example.tripper.algorithm.FuzzyCMeans;
 import com.example.tripper.algorithm.HardCMeans;
-import com.example.tripper.model.HeldKarpDouble;
+import com.example.tripper.algorithm.HeldKarpDouble;
 import com.example.tripper.model.Point;
 
 import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.Polyline;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
 
 public class MapViewModel extends ViewModel {
 

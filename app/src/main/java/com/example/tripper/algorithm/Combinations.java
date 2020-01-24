@@ -1,4 +1,4 @@
-package com.example.tripper.model;
+package com.example.tripper.algorithm;
 
 import java.math.BigInteger;
 
@@ -8,24 +8,16 @@ public class Combinations {
     private int[] index;
     private int n;
     private int r;
-    protected int numLeft;
+    int numLeft;
     private int total;
 
-    public Combinations(int n, int r) {
+    Combinations(int n, int r) {
         this.n = n;
         setStandardConstructor(r);
         resetNumber();
     }
 
-    public Combinations(int[] set, int r) {
-        this.n = set.length;
-        setStandardConstructor(r);
-        this.set = set;
-        setIndex();
-        resetSet();
-    }
-
-    public void setStandardConstructor(int r) {
+    private void setStandardConstructor(int r) {
         this.r = r;
         if(r > n || n < 1) {
             throw new IllegalArgumentException();
@@ -34,7 +26,7 @@ public class Combinations {
         setTotal();
     }
 
-    public void setTotal() {
+    private void setTotal() {
         BigInteger nFact = getFactorial(n);
         BigInteger rFact = getFactorial(r);
         BigInteger nminusrFact = getFactorial(n - r);
@@ -42,40 +34,14 @@ public class Combinations {
         total = resTotal.intValue();
     }
 
-    public void setIndex() {
-        this.index = new int[r];
-        for(int i = 0; i < r; i++) {
-            this.index[i] = i;
-        }
-    }
-
-    public void resetNumber() {
+    private void resetNumber() {
         for (int i = 0; i < a.length; i++) {
             a[i] = i + 1; //starting city == 0
         }
         numLeft = total;
     }
 
-    public void resetSet() {
-        for (int i = 0; i < a.length; i++) {
-            a[i] = set[index[i]];
-        }
-        numLeft = total;
-    }
-
-    public int getNumLeft () {
-        return numLeft;
-    }
-
-    public boolean hasMore () {
-        return numLeft > 0;
-    }
-
-    public int getTotal () {
-        return total;
-    }
-
-    public static BigInteger getFactorial (int n) {
+    private static BigInteger getFactorial(int n) {
         BigInteger fact = BigInteger.ONE;
         for (int i = n; i > 1; i--) {
             fact = fact.multiply (new BigInteger (Integer.toString (i)));
@@ -87,7 +53,7 @@ public class Combinations {
     // Generate next combination (algorithm from Rosen p. 286)
     //--------------------------------------------------------
     // Number combination
-    public int[] getNext() {
+    int[] getNext() {
         if (numLeft == total) {
             numLeft--;
             return a;

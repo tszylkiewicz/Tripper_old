@@ -1,14 +1,14 @@
-package com.example.tripper.model;
+package com.example.tripper.algorithm;
 
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
 public class PairDouble {
-    protected double first;
-    protected int second;
+    double first;
+    int second;
 
-    public PairDouble(double first, int second) {
+    PairDouble(double first, int second) {
         this.first = first;
         this.second = second;
     }
