@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.tripper.MainActivity;
 import com.example.tripper.model.Trip;
@@ -52,10 +53,6 @@ public class ProfileFragment extends Fragment {
 
     private User user;
 
-    public static ProfileFragment newInstance() {
-        return new ProfileFragment();
-    }
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -81,7 +78,6 @@ public class ProfileFragment extends Fragment {
         } else {
 
             user = userViewModel.getCurrentUser();
-            System.out.println(user.getFormattedInfo());
 
             username = view.findViewById(R.id.username);
             firstName = view.findViewById(R.id.firstName);
@@ -98,13 +94,9 @@ public class ProfileFragment extends Fragment {
             disableEdition();
             setDefaultValues();
 
-
-            MainActivity.getDisposables().add(tripViewModel.getAllUserTrips(user.getId()).subscribe(user1 -> {
-                        System.out.println("POBRANO WSZYSTKIE WYCIECZKI");
-                        DisplayTripsStats(user1);
-                    }, Throwable::printStackTrace)
+            MainActivity.getDisposables().add(tripViewModel.getAllUserTrips(user.getId())
+                    .subscribe(this::DisplayTripsStats, Throwable::printStackTrace)
             );
-
 
             edit.setOnClickListener(view1 -> enableEdition());
 
@@ -114,10 +106,7 @@ public class ProfileFragment extends Fragment {
                 user.setLastName(lastName.getText().toString());
 
                 MainActivity.getDisposables().add(userViewModel.update(user)
-                        .subscribe(user1 -> {
-                            System.out.println("NEW USER DATA");
-                            System.out.println(user1.getFormattedInfo());
-                        }, Throwable::printStackTrace)
+                        .subscribe(user1 -> Toast.makeText(getContext(), "User updated successfully", Toast.LENGTH_LONG).show(), Throwable::printStackTrace)
                 );
                 userViewModel.setCurrentUser(user);
                 disableEdition();

@@ -51,15 +51,4 @@ public class User extends Model {
         this.lastName = lastName;
     }
 
-    public String getFormattedInfo() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Id: " + getId() + "\n");
-        builder.append("email: " + email + "\n");
-        builder.append("Username: " + username + "\n");
-        builder.append("firstName: " + firstName + "\n");
-        builder.append("lastName: " + lastName + "\n");
-
-
-        return new String(builder);
-    }
 }

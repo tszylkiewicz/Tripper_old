@@ -201,7 +201,7 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
             }
         });
 
-        //testing();
+        testing();
     }
 
     private void customDrawPoint(GeoPoint pts, int i, int x) {
@@ -484,7 +484,7 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
         testPunkty.add(new GeoPoint(51.769628, 19.465669));
         testPunkty.add(new GeoPoint(51.768054, 19.469961));
         testPunkty.add(new GeoPoint(51.779788, 19.463809));
-        testPunkty.add(new GeoPoint(51.780419, 19.468186));
+        /*testPunkty.add(new GeoPoint(51.780419, 19.468186));
         testPunkty.add(new GeoPoint(51.782437, 19.469205));
         testPunkty.add(new GeoPoint(51.785496, 19.474616));
         testPunkty.add(new GeoPoint(51.785290, 19.470764));
@@ -495,7 +495,7 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
         testPunkty.add(new GeoPoint(51.759743, 19.474864));
         testPunkty.add(new GeoPoint(51.760533, 19.479864));
         testPunkty.add(new GeoPoint(51.754974, 19.482192));
-        testPunkty.add(new GeoPoint(51.754368, 19.444021));
+        testPunkty.add(new GeoPoint(51.754368, 19.444021));*/
         if (testPunkty.size() > 0) {
 
             map.getController().animateTo(testPunkty.get(0));
@@ -507,7 +507,7 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
                     customDrawPoint(pts, i, clist.indexOf(pts));
                 }
             }
-            drawRoads(centrs);
+            //drawRoads(centrs);
         }
     }
 }

@@ -98,18 +98,4 @@ public class Trip extends Model {
         this.shared = shared;
     }
 
-    public String getAllData(){
-        StringBuilder builder = new StringBuilder();
-        builder.append("Id: " + getId() + "\n");
-        builder.append("user: " + userId + "\n");
-        builder.append("name: " + name + "\n");
-        builder.append("description: " + description + "\n");
-        builder.append("distance: " + distance + "\n");
-        builder.append("transportType: " + transportType + "\n");
-        builder.append("rating: " + rating + "\n");
-        builder.append("ratingCount: " + ratingCount + "\n");
-        builder.append("shared: " + shared + "\n");
-
-        return new String(builder);
-    }
 }

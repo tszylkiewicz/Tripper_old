@@ -8,8 +8,8 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.tripper.algorithm.CMeans;
 import com.example.tripper.algorithm.Centroid;
-import com.example.tripper.algorithm.HardCMeans;
-import com.example.tripper.algorithm.HeldKarpDouble;
+import com.example.tripper.algorithm.FuzzyCMeans;
+
 import com.example.tripper.model.Point;
 
 import org.osmdroid.tileprovider.tilesource.ITileSource;
@@ -36,10 +36,11 @@ public class MapViewModel extends ViewModel {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public ArrayList<ArrayList<GeoPoint>> calculateRoad() {
 
-        //CMeans fuzzyCMeans = new HardCMeans(4, 0.0001, 2, roadMand);
-        CMeans fuzzyCMeans = new HardCMeans(days, 0.0001, 2, currentPoints);
-        //CMeans fuzzyCMeans = new FuzzyCMeans(days.getValue(), 0.0001, 2, testPoints);
-        //CMeans fuzzyCMeans = new PossibilisticCMeans(days.getValue(), 0.0001, 2, testPoints);
+        CMeans fuzzyCMeans = new FuzzyCMeans(days, 0.0001, 2, currentPoints);
+
+        //CMeans fuzzyCMeans = new HardCMeans(4, 0.0001, 2, currentPoints);
+        //CMeans fuzzyCMeans = new FuzzyCMeans(4, 0.0001, 2, currentPoints);
+        //CMeans fuzzyCMeans = new PossibilisticCMeans(4, 0.0001, 2, currentPoints);
 
         ArrayList<Centroid> centroids = fuzzyCMeans.calculate();
 
@@ -280,7 +281,7 @@ public class MapViewModel extends ViewModel {
         }
     }
 
-    private ArrayList<GeoPoint> HeldKarpAlgorithm(ArrayList<GeoPoint> points) {
+    /*private ArrayList<GeoPoint> HeldKarpAlgorithm(ArrayList<GeoPoint> points) {
         int size = points.size();
         double[][] distanceMatrix = new double[size][size];
         for (GeoPoint marker :
@@ -314,7 +315,7 @@ public class MapViewModel extends ViewModel {
         System.out.println("---END HELD KARP SOLUTION---");
 
         return resultSet;
-    }
+    }*/
 
     private double routeDistance(ArrayList<GeoPoint> group) {
         double result = 0;

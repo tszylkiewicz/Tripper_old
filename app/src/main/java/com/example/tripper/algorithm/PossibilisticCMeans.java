@@ -16,8 +16,8 @@ public class PossibilisticCMeans extends CMeans {
         this.initializeCentroids();
         this.initializeMatrix();
 
-        System.out.println("---Initial Matrix---");
-        printMatrix();
+       // System.out.println("---Initial Matrix---");
+        //printMatrix();
 
         for (int t = 0; t < maxIteration; t++) {
 
@@ -97,8 +97,8 @@ public class PossibilisticCMeans extends CMeans {
             }
         }
         System.out.println("Koniec po: max iteracjach.");
-        System.out.println("---Exit Matrix---");
-        printMatrix();
+        //System.out.println("---Exit Matrix---");
+        //printMatrix();
 
         return centroids;
     }

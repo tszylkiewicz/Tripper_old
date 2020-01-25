@@ -103,17 +103,37 @@ public class ClusteringUnitTest {
     public void tspRnn() {
         initMarkers();
         System.out.println(markers.size());
-        CMeans hardCMeans = new HardCMeans(days, 0.0001, 2, markers);
+        CMeans hardCMeans = new FuzzyCMeans(days, 0.0001, 2, markers);
         ArrayList<Centroid> result = hardCMeans.calculate();
         hardCMeans.generateClusters();
 
         for (Centroid centroid : result
         ) {
+            long startTime;
+            long endTime;
+            double totalTime;
+
             System.out.println("Ilość punktów: " + centroid.markers.size());
-            long startTime = System.nanoTime();
+
+            System.out.println("RNN");
+            startTime = System.nanoTime();
             RNN(centroid.markers);
-            long endTime = System.nanoTime();
-            double totalTime = (endTime - startTime) / 1000000d;
+            endTime = System.nanoTime();
+            totalTime = (endTime - startTime) / 1000000d;
+            System.out.println("Elapsed time: " + totalTime);
+
+            System.out.println("ThreeOpt");
+            startTime = System.nanoTime();
+            ThreeOpt(centroid.markers);
+            endTime = System.nanoTime();
+            totalTime = (endTime - startTime) / 1000000d;
+            System.out.println("Elapsed time: " + totalTime);
+
+            System.out.println("HeldKarpAlgorithm");
+            startTime = System.nanoTime();
+            HeldKarpAlgorithm(centroid.markers);
+            endTime = System.nanoTime();
+            totalTime = (endTime - startTime) / 1000000d;
             System.out.println("Elapsed time: " + totalTime);
         }
     }
@@ -122,7 +142,7 @@ public class ClusteringUnitTest {
     public void tsp3opt() {
         initMarkers();
         System.out.println(markers.size());
-        CMeans hardCMeans = new HardCMeans(days, 0.0001, 2, markers);
+        CMeans hardCMeans = new FuzzyCMeans(days, 0.0001, 2, markers);
         ArrayList<Centroid> result = hardCMeans.calculate();
         hardCMeans.generateClusters();
 
@@ -141,7 +161,7 @@ public class ClusteringUnitTest {
     public void heldKarpTest() {
         initMarkers();
         System.out.println(markers.size());
-        CMeans hardCMeans = new HardCMeans(days, 0.0001, 2, markers);
+        CMeans hardCMeans = new FuzzyCMeans(days, 0.0001, 2, markers);
         ArrayList<Centroid> result = hardCMeans.calculate();
         hardCMeans.generateClusters();
 
@@ -179,7 +199,7 @@ public class ClusteringUnitTest {
         markers.add(new GeoPoint(51.769628, 19.465669));
         markers.add(new GeoPoint(51.768054, 19.469961));
         markers.add(new GeoPoint(51.779788, 19.463809));
-        markers.add(new GeoPoint(51.780419, 19.468186));
+        /*markers.add(new GeoPoint(51.780419, 19.468186));
         markers.add(new GeoPoint(51.782437, 19.469205));
         markers.add(new GeoPoint(51.785496, 19.474616));
         markers.add(new GeoPoint(51.785290, 19.470764));
@@ -190,7 +210,7 @@ public class ClusteringUnitTest {
         markers.add(new GeoPoint(51.759743, 19.474864));
         markers.add(new GeoPoint(51.760533, 19.479864));
         markers.add(new GeoPoint(51.754974, 19.482192));
-        markers.add(new GeoPoint(51.754368, 19.444021));
+        markers.add(new GeoPoint(51.754368, 19.444021));*/
     }
 
     private ArrayList<GeoPoint> RNN(ArrayList<GeoPoint> group) {

@@ -16,8 +16,8 @@ public class FuzzyCMeans extends CMeans {
         this.initializeCentroids();
         this.initializeMatrix();
 
-        System.out.println("---Initial Matrix---");
-        printMatrix();
+        //System.out.println("---Initial Matrix---");
+        //printMatrix();
 
         for (int t = 0; t < maxIteration; t++) {
 
@@ -58,8 +58,8 @@ public class FuzzyCMeans extends CMeans {
         }
 
         System.out.println("Iteracje: " + maxIteration);
-        System.out.println("---Exit Matrix---");
-        printMatrix();
+        //System.out.println("---Exit Matrix---");
+        //printMatrix();
 
         return centroids;
     }
