@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class Point extends Model {
 
-    @SerializedName(value = "trip_id")
+    @SerializedName("trip_id")
     private int tripId;
     private double longitude;
     private double latitude;

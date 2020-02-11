@@ -85,10 +85,6 @@ public class SignInFragment extends Fragment {
         email.getEditText().addTextChangedListener(textWatcher);
         password.getEditText().addTextChangedListener(textWatcher);
 
-        //CHEATING
-        email.getEditText().setText("test@wp.pl");
-        password.getEditText().setText("Secret1!");
-
         navController = Navigation.findNavController(view);
         signIn.setOnClickListener(view1 -> {
             signIn.setEnabled(false);
@@ -112,7 +108,6 @@ public class SignInFragment extends Fragment {
 
     private void SignInDenied(Throwable throwable) {
         signIn.setEnabled(true);
-        System.out.println(throwable);
         AlertDialog.Builder dlgAlert = new AlertDialog.Builder(getContext());
 
         dlgAlert.setMessage("Incorrect email or password");
@@ -160,8 +155,7 @@ public class SignInFragment extends Fragment {
 
             pattern = Pattern.compile(PASSWORD_PATTERN);
             matcher = pattern.matcher(target);
-            //return matcher.matches();
-            return true;
+            return matcher.matches();
         }
     }
 

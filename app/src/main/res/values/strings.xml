@@ -43,9 +43,25 @@
     <string name="btn_sign_up">Sign up</string>
     <string name="btn_forgot_password">Forgot password?</string>
     <string name="btn_skip">Skip</string>
+    <string name="btn_edit">Edit</string>
+    <string name="btn_cancel">Cancel</string>
 
     <string name="cb_remeber_me">Remember me</string>
 
     <string name="sign_in_success">Signed in successfully</string>
     <string name="sign_up_success">Signed up successfully</string>
+
+    <string name="fragment_profile"></string>
+    <string name="fragment_map_settings">Map settings</string>
+    <string name="fragment_single_trip">Trip details</string>
+
+    <string name="image_description">Profile image</string>
+
+    <string name="username">Username</string>
+    <string name="firstname">First name</string>
+    <string name="lastname">Last name</string>
+    <string name="email">Email</string>
+    <string name="default_value">0</string>
+    <string name="routes_created">ROUTES CREATED</string>
+    <string name="routes_published">ROUTES PUBLISHED</string>
 </resources>

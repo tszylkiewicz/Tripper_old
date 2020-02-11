@@ -106,7 +106,6 @@ public class SignUpFragment extends Fragment {
 
     private void SignUpDenied(Throwable throwable) {
         signUp.setEnabled(true);
-        System.out.println(throwable);
         AlertDialog.Builder dlgAlert = new AlertDialog.Builder(getContext());
 
         dlgAlert.setMessage("This email already exists in the database");

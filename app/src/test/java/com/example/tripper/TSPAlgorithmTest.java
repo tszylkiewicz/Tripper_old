@@ -4,8 +4,8 @@ import com.example.tripper.algorithm.CMeans;
 import com.example.tripper.algorithm.Centroid;
 import com.example.tripper.algorithm.FuzzyCMeans;
 import com.example.tripper.algorithm.HardCMeans;
-import com.example.tripper.algorithm.PossibilisticCMeans;
 import com.example.tripper.algorithm.HeldKarpDouble;
+import com.example.tripper.algorithm.PossibilisticCMeans;
 
 import org.junit.Test;
 import org.osmdroid.util.GeoPoint;
@@ -13,96 +13,20 @@ import org.osmdroid.util.GeoPoint;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * Example local unit test, which will execute on the development machine (host).
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
-public class ClusteringUnitTest {
-
-    private int days = 4;
+public class TSPAlgorithmTest {
 
     private ArrayList<GeoPoint> markers;
 
     @Test
-    public void clusteringHCM() {
+    public void tspTest() {
         initMarkers();
         System.out.println(markers.size());
-        CMeans hardCMeans = new HardCMeans(days, 0.0001, 2, markers);
-        long startTime = System.nanoTime();
-        ArrayList<Centroid> result = hardCMeans.calculate();
-        long endTime = System.nanoTime();
-        double totalTime = (endTime - startTime) / 1000000d;
-        System.out.println("Elapsed time " + totalTime);
-        hardCMeans.generateClusters();
-
-        for (int i = 0; i < result.size(); i++) {
-            Centroid centroid = result.get(i);
-            System.out.println("Obiektów w klastrze " + i + ": " + centroid.markers.size());
-            double averageDistanceToCenter = 0;
-            for (GeoPoint point : centroid.markers) {
-                averageDistanceToCenter += point.distanceToAsDouble(centroid.position);
-            }
-            averageDistanceToCenter = averageDistanceToCenter / centroid.markers.size();
-            System.out.println("Srednia odległosc do centrum: " + averageDistanceToCenter);
-        }
-    }
-
-    @Test
-    public void clusteringFCM() {
-        initMarkers();
-        CMeans fuzzyCMeans = new FuzzyCMeans(days, 0.0001, 2, markers);
-        long startTime = System.nanoTime();
-        ArrayList<Centroid> result = fuzzyCMeans.calculate();
-        long endTime = System.nanoTime();
-        double totalTime = (endTime - startTime) / 1000000d;
-        System.out.println("Elapsed time " + totalTime);
-
-        fuzzyCMeans.generateClusters();
-
-        for (int i = 0; i < result.size(); i++) {
-            Centroid centroid = result.get(i);
-            System.out.println("Obiektów w klastrze " + i + ": " + centroid.markers.size());
-            double averageDistanceToCenter = 0;
-            for (GeoPoint point : centroid.markers) {
-                averageDistanceToCenter += point.distanceToAsDouble(centroid.position);
-            }
-            averageDistanceToCenter = averageDistanceToCenter / centroid.markers.size();
-            System.out.println("Srednia odległosc do centrum: " + averageDistanceToCenter);
-        }
-
-    }
-
-    @Test
-    public void clusteringPCM() {
-        initMarkers();
-        CMeans possibilisticCMeans = new PossibilisticCMeans(days, 0.0001, 2, markers);
-        long startTime = System.nanoTime();
-        ArrayList<Centroid> result = possibilisticCMeans.calculate();
-        long endTime = System.nanoTime();
-        double totalTime = (endTime - startTime) / 1000000d;
-        System.out.println("Elapsed time " + totalTime);
-
-        possibilisticCMeans.generateClusters();
-
-        for (int i = 0; i < result.size(); i++) {
-            Centroid centroid = result.get(i);
-            System.out.println("Obiektów w klastrze " + i + ": " + centroid.markers.size());
-            double averageDistanceToCenter = 0;
-            for (GeoPoint point : centroid.markers) {
-                averageDistanceToCenter += point.distanceToAsDouble(centroid.position);
-            }
-            averageDistanceToCenter = averageDistanceToCenter / centroid.markers.size();
-            System.out.println("Srednia odległosc do centrum: " + averageDistanceToCenter);
-        }
-    }
-
-    @Test
-    public void tspRnn() {
-        initMarkers();
-        System.out.println(markers.size());
+        int days = 4;
         CMeans hardCMeans = new FuzzyCMeans(days, 0.0001, 2, markers);
         ArrayList<Centroid> result = hardCMeans.calculate();
         hardCMeans.generateClusters();
@@ -138,45 +62,6 @@ public class ClusteringUnitTest {
         }
     }
 
-    @Test
-    public void tsp3opt() {
-        initMarkers();
-        System.out.println(markers.size());
-        CMeans hardCMeans = new FuzzyCMeans(days, 0.0001, 2, markers);
-        ArrayList<Centroid> result = hardCMeans.calculate();
-        hardCMeans.generateClusters();
-
-        for (Centroid centroid : result
-        ) {
-            System.out.println("Ilość punktów: " + centroid.markers.size());
-            long startTime = System.nanoTime();
-            ThreeOpt(centroid.markers);
-            long endTime = System.nanoTime();
-            double totalTime = (endTime - startTime) / 1000000d;
-            System.out.println("Elapsed time: " + totalTime);
-        }
-    }
-
-    @Test
-    public void heldKarpTest() {
-        initMarkers();
-        System.out.println(markers.size());
-        CMeans hardCMeans = new FuzzyCMeans(days, 0.0001, 2, markers);
-        ArrayList<Centroid> result = hardCMeans.calculate();
-        hardCMeans.generateClusters();
-
-        for (Centroid centroid : result
-        ) {
-            System.out.println("Ilość punktów: " + centroid.markers.size());
-            long startTime = System.nanoTime();
-            HeldKarpAlgorithm(centroid.markers);
-            long endTime = System.nanoTime();
-            double totalTime = (endTime - startTime) / 1000000d;
-            System.out.println("Elapsed time: " + totalTime);
-        }
-    }
-
-
     private void initMarkers() {
         markers = new ArrayList<>();
         markers.add(new GeoPoint(51.760420, 19.407577));
@@ -199,18 +84,6 @@ public class ClusteringUnitTest {
         markers.add(new GeoPoint(51.769628, 19.465669));
         markers.add(new GeoPoint(51.768054, 19.469961));
         markers.add(new GeoPoint(51.779788, 19.463809));
-        /*markers.add(new GeoPoint(51.780419, 19.468186));
-        markers.add(new GeoPoint(51.782437, 19.469205));
-        markers.add(new GeoPoint(51.785496, 19.474616));
-        markers.add(new GeoPoint(51.785290, 19.470764));
-        markers.add(new GeoPoint(51.792483, 19.471519));
-        markers.add(new GeoPoint(51.763779, 19.457791));
-        markers.add(new GeoPoint(51.759068, 19.458263));
-        markers.add(new GeoPoint(51.745045, 19.462705));
-        markers.add(new GeoPoint(51.759743, 19.474864));
-        markers.add(new GeoPoint(51.760533, 19.479864));
-        markers.add(new GeoPoint(51.754974, 19.482192));
-        markers.add(new GeoPoint(51.754368, 19.444021));*/
     }
 
     private ArrayList<GeoPoint> RNN(ArrayList<GeoPoint> group) {

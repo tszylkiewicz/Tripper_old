@@ -24,7 +24,7 @@
             android:title="@string/menu_your_profile" />
     </group>
 
-    <group
+    <!--<group
         android:id="@+id/group2"
         android:checkableBehavior="single">
         <item
@@ -39,6 +39,6 @@
             android:id="@+id/nav_sign_out"
             android:icon="@drawable/ic_menu_sign_out"
             android:title="@string/menu_sign_out" />
-    </group>
+    </group>-->
 
 </menu>

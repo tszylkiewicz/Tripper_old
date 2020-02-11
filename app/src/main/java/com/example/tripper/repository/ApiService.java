@@ -17,78 +17,87 @@ import retrofit2.http.Path;
 
 public interface ApiService {
 
-    // =============================================================================================
-    // Authentication endpoints
-    // =============================================================================================
+    /**
+	 * =============================================================================================
+	 * Authentication endpoints
+	 * =============================================================================================
+	 */
     @POST("login")
     Single<User> signIn(@Body JsonObject request);
 
-    @POST("register")
+	@POST("register")
     Single<User> signUp(@Body JsonObject request);
 
-    // =============================================================================================
-    // User endpoints
-    // =============================================================================================
+    /**
+	 * =============================================================================================
+	 * User endpoints
+	 * =============================================================================================
+	 */
     @PUT("user/{id}")
     Single<User> updateUser(@Path("id") int userId, @Body User user);
 
-    @POST("user")
+	@POST("user")
     Single<User> create(@Body User user);
 
-    @GET("user/{id}")
+	@GET("user/{id}")
     Single<User> readUser(@Path("id") int userId);
 
-    @PUT("user")
+	@PUT("user")
     Single<User> update(@Body User user);
 
-    @DELETE("user/{id}")
+	@DELETE("user/{id}")
     boolean deleteUser(@Path("id") int userId);
 
-    // =============================================================================================
-    // Point endpoints
-    // =============================================================================================
+    /**
+	 * =============================================================================================
+	 * Point endpoints
+	 * =============================================================================================
+	 */
     @POST("point")
     Single<List<Point>> addPoints(@Body List<JsonObject> request);
 
-    @GET("point/trip/{id}")
+	@GET("point/trip/{id}")
     Single<List<Point>> getAllTripPoints(@Path("id") int tripId);
 
-    @POST("point")
+	@POST("point")
     Single<Point> create(@Body Point point);
 
-    @GET("point/{id}")
+	@GET("point/{id}")
     Single<Point> readPoint(@Path("id") int pointId);
 
-    @PUT("point")
+	@PUT("point")
     Single<Point> update(@Body Point point);
 
-    @DELETE("point/{id}")
+	@DELETE("point/{id}")
     boolean deletePoint(@Path("id") int pointId);
 
-    // =============================================================================================
-    // Trip endpoints
-    // =============================================================================================
+    /**
+	 * =============================================================================================
+	 * Trip endpoints
+	 * =============================================================================================
+	 */
     @POST("trip")
     Single<Trip> createTrip(@Body JsonObject request);
 
-    @GET("trip/user/{id}")
+	@GET("trip/user/{id}")
     Single<List<Trip>> getAllUserTrips(@Path("id") int userId);
 
     @GET("trip/public")
     Single<List<Trip>> getAllPublicTrips();
 
-    @PUT("trip/{id}")
+	@PUT("trip/{id}")
     Single<Trip> updateTrip(@Path("id") int tripId, @Body Trip trip);
 
-    @POST("trip")
+	@POST("trip")
     Single<Trip> create(@Body Trip trip);
 
-    @GET("trip/{id}")
+
+	@GET("trip/{id}")
     Single<Trip> readTrip(@Path("id") int tripId);
 
-    @PUT("trip")
+	@PUT("trip")
     Single<Trip> update(@Body Trip trip);
 
-    @DELETE("trip/{id}")
+	@DELETE("trip/{id}")
     boolean deleteTrip(@Path("id") int tripId);
 }

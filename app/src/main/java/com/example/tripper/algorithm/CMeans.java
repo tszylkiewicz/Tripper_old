@@ -43,9 +43,6 @@ public abstract class CMeans {
 
     void initializeCentroids() {
         int temp = n / c;
-        System.out.println(n);
-        System.out.println(c);
-        System.out.println(temp);
         for (int i = 0; i < c; i++) {
             centroids.add(new Centroid(markers.get(i * temp)));
         }
@@ -97,18 +94,6 @@ public abstract class CMeans {
         } finally {
             oos.close();
             ois.close();
-        }
-    }
-
-    void printMatrix() {
-        DecimalFormat df2 = new DecimalFormat("#.##");
-        for (int i = 0; i < n; i++) {
-            Vector<Double> r = u1.get(i);
-            for (int k = 0; k < c; k++) {
-                System.out.print(r.get(k) + ", ");
-                //System.out.print(df2.format(r.get(k)) + ", ");
-            }
-            System.out.println();
         }
     }
 

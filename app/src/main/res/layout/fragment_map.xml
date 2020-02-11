@@ -32,7 +32,7 @@
         android:background="@drawable/round_btn"
         android:src="@drawable/ic_my_location" />
 
-    <ImageButton
+    <!--<ImageButton
         android:id="@+id/zoom_out"
         android:layout_gravity="top|end"
         android:layout_marginTop="70dp"
@@ -40,6 +40,6 @@
         android:layout_width="45dp"
         android:layout_height="45dp"
         android:background="@drawable/round_btn"
-        android:src="@drawable/ic_remove" />
+        android:src="@drawable/ic_remove" />-->
 
 </FrameLayout>

@@ -34,16 +34,6 @@ public class MainActivity extends AppCompatActivity {
         return disposables;
     }
 
-    private static MainActivity instance;
-
-    public static MainActivity getInstance() {
-        return instance;
-    }
-
-    public static Context getAppContext() {
-        return instance.getApplicationContext();
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_map, R.id.nav_explore, R.id.nav_your_trips,
-                R.id.nav_your_profile, R.id.nav_help, R.id.nav_settings)
+                R.id.nav_your_profile)
                 .setDrawerLayout(drawerLayout)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);

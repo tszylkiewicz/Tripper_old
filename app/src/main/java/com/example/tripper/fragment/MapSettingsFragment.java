@@ -108,7 +108,6 @@ public class MapSettingsFragment extends Fragment {
         tileSource.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                System.out.println("CHOSEN SOURCE:" + tileSource.getSelectedItem());
                 mapViewModel.setTileSource(mapLayers.get(tileSource.getSelectedItem()));
             }
 

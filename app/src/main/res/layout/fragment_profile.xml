@@ -11,18 +11,19 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_marginTop="60dp"
-        android:src="@drawable/side_nav_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:src="@drawable/avatar_1"
+        android:contentDescription="@string/image_description" />
 
     <TextView
         android:id="@+id/usernameTip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
-        android:gravity="left"
-        android:text="Username"
+        android:gravity="start"
+        android:text="@string/username"
         android:textColor="@color/primaryText"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -35,8 +36,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:focusable="false"
-        android:gravity="left"
-        android:text="Janedoe"
+        android:gravity="start"
         android:textColor="@color/primaryText"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -49,8 +49,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="60dp"
-        android:gravity="left"
-        android:text="Last name"
+        android:gravity="start"
+        android:text="@string/lastname"
         android:textColor="@color/primaryText"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -63,8 +63,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:focusable="false"
-        android:gravity="left"
-        android:text="Doe"
+        android:gravity="start"
         android:textColor="@color/primaryText"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -77,8 +76,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
-        android:gravity="left"
-        android:text="First name"
+        android:gravity="start"
+        android:text="@string/firstname"
         android:textColor="@color/primaryText"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -91,8 +90,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:focusable="false"
-        android:gravity="left"
-        android:text="Jane"
+        android:gravity="start"
         android:textColor="@color/primaryText"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -107,7 +105,8 @@
         android:src="@drawable/ic_person"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/usernameTip" />
+        app:layout_constraintTop_toBottomOf="@+id/usernameTip"
+        android:contentDescription="@string/image_description" />
 
     <ImageView
         android:id="@+id/iconEmail"
@@ -116,24 +115,16 @@
         android:src="@drawable/ic_email"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/emailTip" />
-
-    <!--<ImageView
-        android:id="@+id/iconPhone"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:src="@drawable/ic_phone"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/phoneTip" />-->
+        app:layout_constraintTop_toBottomOf="@+id/emailTip"
+        android:contentDescription="@string/image_description" />
 
     <TextView
         android:id="@+id/emailTip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="60dp"
-        android:gravity="left"
-        android:text="Email"
+        android:gravity="start"
+        android:text="@string/email"
         android:textColor="@color/primaryText"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -145,8 +136,7 @@
         android:id="@+id/email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="left"
-        android:text="jane_doe@tripper.com"
+        android:gravity="start"
         android:textColor="@color/primaryText"
         android:textSize="20sp"
 
@@ -154,33 +144,6 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@id/guideline2"
         app:layout_constraintTop_toBottomOf="@+id/emailTip" />
-
-    <!-- <TextView
-         android:id="@+id/phoneTip"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:gravity="left"
-         android:text="Phone"
-         android:textColor="@color/primaryText"
-         android:textSize="15sp"
-         android:layout_marginTop="60dp"
-         app:layout_constraintTop_toBottomOf="@+id/emailTip"
-         app:layout_constraintEnd_toEndOf="parent"
-         app:layout_constraintHorizontal_bias="0.0"
-         app:layout_constraintStart_toStartOf="@id/guideline2" />
-
-     <TextView
-         android:id="@+id/phone"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:gravity="left"
-         android:text="+48 123 456 789"
-         android:textColor="@color/primaryText"
-         android:textSize="20sp"
-         app:layout_constraintEnd_toEndOf="parent"
-         app:layout_constraintHorizontal_bias="0.0"
-         app:layout_constraintStart_toStartOf="@id/guideline2"
-         app:layout_constraintTop_toBottomOf="@+id/phoneTip" />-->
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
@@ -203,7 +166,7 @@
         android:ems="4"
         android:gravity="center_horizontal"
         android:inputType="number"
-        android:text="0"
+        android:text="@string/default_value"
         android:textSize="30sp"
         app:layout_constraintBottom_toTopOf="@+id/tripsCreatedText"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
@@ -216,8 +179,8 @@
         android:layout_marginBottom="20dp"
         android:ems="9"
         android:gravity="center_horizontal"
-        android:text="ROUTES CREATED"
-        android:textSize="10sp"
+        android:text="@string/routes_created"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintStart_toStartOf="parent" />
@@ -230,7 +193,7 @@
         android:ems="4"
         android:gravity="center_horizontal"
         android:inputType="number"
-        android:text="0"
+        android:text="@string/default_value"
         android:textSize="30sp"
         app:layout_constraintBottom_toTopOf="@+id/tripsPublishedText"
         app:layout_constraintEnd_toEndOf="parent"
@@ -243,8 +206,8 @@
         android:layout_marginBottom="20dp"
         android:ems="9"
         android:gravity="center_horizontal"
-        android:text="ROUTES PUBLISHED"
-        android:textSize="10sp"
+        android:text="@string/routes_published"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline" />
@@ -254,7 +217,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="45dp"
-        android:text="Edit"
+        android:text="@string/btn_edit"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/email" />
@@ -264,7 +227,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="45dp"
-        android:text="Save"
+        android:text="@string/btn_save"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/email" />
@@ -274,7 +237,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="45dp"
-        android:text="Cancel"
+        android:text="@string/btn_cancel"
         app:layout_constraintEnd_toEndOf="@+id/guideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/email" />

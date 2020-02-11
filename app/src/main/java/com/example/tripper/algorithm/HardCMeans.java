@@ -1,5 +1,7 @@
 package com.example.tripper.algorithm;
 
+import android.util.Log;
+
 import org.osmdroid.util.GeoPoint;
 
 import java.util.ArrayList;
@@ -17,15 +19,12 @@ public class HardCMeans extends CMeans {
         this.initializeCentroids();
         this.initializeMatrix();
 
-        System.out.println("---Initial Matrix---");
-        //printMatrix();
-
         for (int t = 0; t < maxIteration; t++) {
 
             try {
                 u0 = deepCopy(u1);
             } catch (Exception ex) {
-                System.out.println("Błąd kopiowania" + ex);
+                Log.e("cmeans", "Błąd kopiowania" + ex);
             }
 
             for (int i = 0; i < n; i++) {
@@ -52,15 +51,10 @@ public class HardCMeans extends CMeans {
                 centroids.get(i).position = new GeoPoint(numeratorLat / denominator, numeratorLon / denominator);
             }
 
-
             if (matrixDifference() <= epsilon) {
-                System.out.println("Iteracje: " + t);
                 break;
             }
         }
-        System.out.println("Iteracje: " + maxIteration);
-        System.out.println("---Exit Matrix---");
-        //printMatrix();
 
         return centroids;
     }

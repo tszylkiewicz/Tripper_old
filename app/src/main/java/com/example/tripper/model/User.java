@@ -6,9 +6,9 @@ public class User extends Model {
 
     private String email;
     private String username;
-    @SerializedName(value = "firstname")
+    @SerializedName("firstname")
     private String firstName;
-    @SerializedName(value = "lastname")
+    @SerializedName("lastname")
     private String lastName;
 
     public User(int id, String email, String username, String firstName, String lastName) {

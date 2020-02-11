@@ -1,5 +1,7 @@
 package com.example.tripper.algorithm;
 
+import android.util.Log;
+
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.overlay.Marker;
 
@@ -16,15 +18,12 @@ public class PossibilisticCMeans extends CMeans {
         this.initializeCentroids();
         this.initializeMatrix();
 
-       // System.out.println("---Initial Matrix---");
-        //printMatrix();
-
         for (int t = 0; t < maxIteration; t++) {
 
             try {
                 u0 = deepCopy(u1);
             } catch (Exception ex) {
-                System.out.println("Błąd kopiowania" + ex);
+                Log.e("cmeans", "Błąd kopiowania" + ex);
             }
 
             for (int i = 0; i < c; i++) {
@@ -52,17 +51,6 @@ public class PossibilisticCMeans extends CMeans {
 
                 for (int j = 0; j < n; j++) {
                     double result = centroids.get(i).position.distanceToAsDouble(markers.get(j));
-                    /*result = Math.pow(result, 2);
-                    result = result / ni;
-                    result = Math.pow(result, 1 / m - 1);
-                    result += 1;
-                    u1.get(j).set(i, 1 / result);*/
-
-                    /*result = Math.pow(result, 2);
-                    result = result / ni;
-                    result = Math.pow(result, 1 / m - 1);
-                    result += 1;
-                    u1.get(j).set(i, 1 / result);*/
 
                     //Analiza skupień - Wierzchoń, Kłopotek
                     result = Math.pow(result, 2);
@@ -92,13 +80,9 @@ public class PossibilisticCMeans extends CMeans {
             }
 
             if (matrixDifference() <= epsilon) {
-                System.out.println("Koniec po: " + t + " iteracjach.");
                 break;
             }
         }
-        System.out.println("Koniec po: max iteracjach.");
-        //System.out.println("---Exit Matrix---");
-        //printMatrix();
 
         return centroids;
     }

@@ -5,15 +5,15 @@ import com.google.gson.annotations.SerializedName;
 public class Trip extends Model {
 
 
-    @SerializedName(value = "user_id")
+    @SerializedName("user_id")
     private int userId;
     private String name;
     private String description;
     private double distance;
-    @SerializedName(value = "transport_type")
+    @SerializedName("transport_type")
     private String transportType;
     private double rating;
-    @SerializedName(value = "rating_count")
+    @SerializedName("rating_count")
     private int ratingCount;
     private int shared;
 

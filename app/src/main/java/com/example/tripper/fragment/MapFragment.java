@@ -5,7 +5,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -25,18 +24,13 @@ import androidx.navigation.Navigation;
 
 import android.os.StrictMode;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 
-import com.example.tripper.MainActivity;
 import com.example.tripper.R;
-import com.example.tripper.algorithm.Centroid;
-import com.example.tripper.model.Trip;
-import com.example.tripper.model.User;
 import com.example.tripper.viewmodel.MapViewModel;
 import com.example.tripper.viewmodel.TripViewModel;
 import com.example.tripper.viewmodel.UserViewModel;
@@ -45,12 +39,9 @@ import com.leinardi.android.speeddial.SpeedDialView;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.routing.MapQuestRoadManager;
-import org.osmdroid.bonuspack.routing.OSRMRoadManager;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
-import org.osmdroid.bonuspack.routing.RoadNode;
 import org.osmdroid.events.MapEventsReceiver;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.CustomZoomButtonsController;
 import org.osmdroid.views.MapView;
@@ -59,16 +50,12 @@ import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
-import org.osmdroid.views.overlay.infowindow.BasicInfoWindow;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.Collectors;
-
-import io.reactivex.disposables.CompositeDisposable;
 
 
 public class MapFragment extends Fragment implements MapEventsReceiver, LocationListener {
@@ -80,7 +67,6 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 0;
     private MapView map;
     private Context context;
-    private IMapController mapController;
     private NavController navController;
 
     private ImageButton zoomIn;
@@ -109,24 +95,6 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
         userViewModel = ViewModelProviders.of(requireActivity()).get(UserViewModel.class);
         mapViewModel = ViewModelProviders.of(requireActivity()).get(MapViewModel.class);
         tripViewModel = ViewModelProviders.of(requireActivity()).get(TripViewModel.class);
-
-        mapViewModel.getCentroids().observe(requireActivity(), centroids -> {
-            //drawCentroids(centroids);
-        });
-    }
-
-    private void drawCentroids(ArrayList<GeoPoint> centroids) {
-        for (GeoPoint geo :
-                centroids) {
-            Marker newMarker = new Marker(map);
-            newMarker.setPosition(geo);
-            newMarker.setTitle("Centroid");
-            newMarker.setOnMarkerClickListener((marker1, mapView) -> {
-                removeMarker(marker1);
-                return false;
-            });
-            map.getOverlays().add(newMarker);
-        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -142,11 +110,9 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
 
         map = view.findViewById(R.id.mapview);
         zoomIn = view.findViewById(R.id.zoom_in);
-        ImageButton zoomOut = view.findViewById(R.id.zoom_out);
         speedDialView = view.findViewById(R.id.speedDial);
 
         zoomIn.setOnClickListener(view1 -> zoomIn());
-        zoomOut.setOnClickListener(view12 -> zoomOut());
 
         MapEventsOverlay OverlayEvents = new MapEventsOverlay(this);
 
@@ -168,7 +134,7 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
         map.getOverlays().add(compassOverlay);
 
         map.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.NEVER);
-        mapController = map.getController();
+        IMapController mapController = map.getController();
         mapController.setZoom(mapViewModel.getCurrentZoomLevel());
         mapController.setCenter(mapViewModel.getCurrentCenter());
 
@@ -201,30 +167,6 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
             }
         });
 
-        testing();
-    }
-
-    private void customDrawPoint(GeoPoint pts, int i, int x) {
-        Marker marker = new Marker(map);
-        marker.setPosition(pts);
-        marker.setTitle("Element " + x);
-        switch (i) {
-            case 0:
-                marker.setIcon(getResources().getDrawable(R.drawable.ic_marker));
-                break;
-            case 1:
-                marker.setIcon(getResources().getDrawable(R.drawable.marker1));
-                break;
-            case 2:
-                marker.setIcon(getResources().getDrawable(R.drawable.marker2));
-                break;
-            case 3:
-                marker.setIcon(getResources().getDrawable(R.drawable.marker3));
-                break;
-            default:
-                break;
-        }
-        map.getOverlays().add(marker);
     }
 
     @Override
@@ -337,7 +279,6 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
                     roadOverlay.setColor(Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)));
                     roadOverlay.setWidth(8);
                     routes.add(roadOverlay);
-                    System.out.println("Grupa: " + markerList.size() + " -> " + roadOverlay.getDistance());
                     tripViewModel.addCreatedRoute(roadOverlay, markerList);
                 }
 
@@ -393,12 +334,6 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
         if (location != null) {
             GeoPoint myPosition = new GeoPoint(location.getLatitude(), location.getLongitude());
             map.getController().animateTo(myPosition);
-        }
-    }
-
-    private void zoomOut() {
-        if (map.canZoomOut()) {
-            mapController.setZoom(map.getZoomLevelDouble() - 0.5d);
         }
     }
 
@@ -461,53 +396,4 @@ public class MapFragment extends Fragment implements MapEventsReceiver, Location
         );
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private void testing() {
-        ArrayList<GeoPoint> testPunkty = new ArrayList<>();
-        testPunkty.add(new GeoPoint(51.760420, 19.407577));
-        testPunkty.add(new GeoPoint(51.757175, 19.425164));
-        testPunkty.add(new GeoPoint(51.763931, 19.412367));
-        testPunkty.add(new GeoPoint(51.766401, 19.415226));
-        testPunkty.add(new GeoPoint(51.764568, 19.421320));
-        testPunkty.add(new GeoPoint(51.776187, 19.437574));
-        testPunkty.add(new GeoPoint(51.778947, 19.446647));
-        testPunkty.add(new GeoPoint(51.780009, 19.447795));
-        testPunkty.add(new GeoPoint(51.780699, 19.447065));
-        testPunkty.add(new GeoPoint(51.778781, 19.451303));
-        testPunkty.add(new GeoPoint(51.780732, 19.456903));
-        testPunkty.add(new GeoPoint(51.776776, 19.454704));
-        testPunkty.add(new GeoPoint(51.776285, 19.455155));
-        testPunkty.add(new GeoPoint(51.775953, 19.454812));
-        testPunkty.add(new GeoPoint(51.774771, 19.455091));
-        testPunkty.add(new GeoPoint(51.772879, 19.455788));
-        testPunkty.add(new GeoPoint(51.770644, 19.464006));
-        testPunkty.add(new GeoPoint(51.769628, 19.465669));
-        testPunkty.add(new GeoPoint(51.768054, 19.469961));
-        testPunkty.add(new GeoPoint(51.779788, 19.463809));
-        /*testPunkty.add(new GeoPoint(51.780419, 19.468186));
-        testPunkty.add(new GeoPoint(51.782437, 19.469205));
-        testPunkty.add(new GeoPoint(51.785496, 19.474616));
-        testPunkty.add(new GeoPoint(51.785290, 19.470764));
-        testPunkty.add(new GeoPoint(51.792483, 19.471519));
-        testPunkty.add(new GeoPoint(51.763779, 19.457791));
-        testPunkty.add(new GeoPoint(51.759068, 19.458263));
-        testPunkty.add(new GeoPoint(51.745045, 19.462705));
-        testPunkty.add(new GeoPoint(51.759743, 19.474864));
-        testPunkty.add(new GeoPoint(51.760533, 19.479864));
-        testPunkty.add(new GeoPoint(51.754974, 19.482192));
-        testPunkty.add(new GeoPoint(51.754368, 19.444021));*/
-        if (testPunkty.size() > 0) {
-
-            map.getController().animateTo(testPunkty.get(0));
-            mapViewModel.setCurrentPoints(testPunkty);
-            ArrayList<ArrayList<GeoPoint>> centrs = mapViewModel.calculateRoad();
-            for (int i = 0; i < centrs.size(); i++) {
-                ArrayList<GeoPoint> clist = centrs.get(i);
-                for (GeoPoint pts : clist) {
-                    customDrawPoint(pts, i, clist.indexOf(pts));
-                }
-            }
-            //drawRoads(centrs);
-        }
-    }
 }

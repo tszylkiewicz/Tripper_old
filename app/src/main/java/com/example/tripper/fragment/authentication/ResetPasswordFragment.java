@@ -1,15 +1,6 @@
 package com.example.tripper.fragment.authentication;
 
-import androidx.lifecycle.ViewModelProviders;
-
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -18,8 +9,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+
 import com.example.tripper.R;
-import com.example.tripper.viewmodel.UserViewModel;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.regex.Matcher;
@@ -27,18 +23,9 @@ import java.util.regex.Pattern;
 
 public class ResetPasswordFragment extends Fragment {
 
-    private UserViewModel userViewModel;
-
     private TextInputLayout oldPassword;
     private TextInputLayout newPassword;
-    private TextInputLayout confirmPassword;
     private Button save;
-
-    private TextWatcher textWatcher;
-
-    public static ResetPasswordFragment newInstance() {
-        return new ResetPasswordFragment();
-    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -49,13 +36,12 @@ public class ResetPasswordFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        userViewModel = ViewModelProviders.of(requireActivity()).get(UserViewModel.class);
 
         oldPassword = view.findViewById(R.id.oldPassword);
         newPassword = view.findViewById(R.id.newPassword);
-        confirmPassword = view.findViewById(R.id.confirmPassword);
+        TextInputLayout confirmPassword = view.findViewById(R.id.confirmPassword);
 
-        textWatcher = new TextWatcher() {
+        TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
